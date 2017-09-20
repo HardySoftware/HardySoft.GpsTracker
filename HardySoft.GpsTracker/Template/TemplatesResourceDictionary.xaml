@@ -1,0 +1,17 @@
+﻿<ResourceDictionary
+    x:Class="HardySoft.GpsTracker.Template.TemplatesResourceDictionary"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardySoft.GpsTracker.Template"
+    xmlns:localModel="using:HardySoft.GpsTracker.Models">
+    <DataTemplate x:Key="DefaultTemplate" x:DataType="localModel:MenuItem">
+        <Grid Width="240" Height="48" Margin="0,0,0,0" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <SymbolIcon Grid.Column="0" Symbol="{x:Bind Icon, Mode=OneWay}" Foreground="White" />
+            <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" Foreground="White" />
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
