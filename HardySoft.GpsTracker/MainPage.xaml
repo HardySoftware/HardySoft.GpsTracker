@@ -15,18 +15,20 @@
             <ResourceDictionary.MergedDictionaries>
                 <localTemplate:TemplatesResourceDictionary/>
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="DefaultTemplate" x:DataType="localModel:MenuItem">
+                <Grid Width="240" Height="48" Margin="0,0,0,0" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <SymbolIcon Grid.Column="0" Symbol="{x:Bind Icon, Mode=OneWay}" Foreground="White" />
+                    <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" Foreground="White" />
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-
         <controls:HamburgerMenu x:Name="hamburgerMenuControl"
                                 Grid.Row="0"
                                 Grid.Column="0"
@@ -37,8 +39,7 @@
                                 ItemClick="OnMenuItemClick"
                                 OptionsItemTemplate="{StaticResource DefaultTemplate}"
                                 OptionsItemClick="OnMenuItemClick">
-            <Frame x:Name="contentFrameInsideMenu"/>
+            <Frame x:Name="contentFrame" />
         </controls:HamburgerMenu>
-        <TextBlock Grid.Row="0" Grid.Column="1">Track my movement</TextBlock>
     </Grid>
 </Page>

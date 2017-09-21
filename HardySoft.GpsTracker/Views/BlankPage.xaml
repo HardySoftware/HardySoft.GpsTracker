@@ -8,6 +8,6 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock FontSize="48">This is a blank page!</TextBlock>
+        <TextBlock FontSize="48" Foreground="Red">This is a blank page!</TextBlock>
     </Grid>
 </Page>

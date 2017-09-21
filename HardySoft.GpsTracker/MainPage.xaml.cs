@@ -42,7 +42,7 @@
             var menuItem = e.ClickedItem as MenuItem;
 
             // this.contentFrame.Navigate(menuItem.PageType);
-            this.contentFrameInsideMenu.Navigate(menuItem.PageType);
+            this.contentFrame.Navigate(menuItem.PageType);
         }
     }
 }
