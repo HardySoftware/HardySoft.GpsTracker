@@ -1,13 +1,14 @@
 ﻿<Page
-    x:Class="HardySoft.GpsTracker.MainPage"
+    x:Class="HardySoft.GpsTracker.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:localModel="using:HardySoft.GpsTracker.Models"
+    xmlns:local="using:HardySoft.GpsTracker.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:localModel="using:HardySoft.GpsTracker.Models"
     xmlns:localTemplate="using:HardySoft.GpsTracker.Template"
     mc:Ignorable="d">
 
