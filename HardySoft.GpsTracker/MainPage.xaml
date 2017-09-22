@@ -2,7 +2,8 @@
     x:Class="HardySoft.GpsTracker.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:HardySoft.GpsTracker"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:localModel="using:HardySoft.GpsTracker.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -35,10 +36,23 @@
                                 PaneBackground="Black"
                                 Foreground="White"
                                 DisplayMode="CompactOverlay"
+                                ItemsSource="{Binding Path=MainMenuItems}"
                                 ItemTemplate="{StaticResource DefaultTemplate}"
-                                ItemClick="OnMenuItemClick"
-                                OptionsItemTemplate="{StaticResource DefaultTemplate}"
-                                OptionsItemClick="OnMenuItemClick">
+                                OptionsItemsSource="{Binding Path=OptionMenuItems}"
+                                OptionsItemTemplate="{StaticResource DefaultTemplate}">
+            <i:Interaction.Behaviors>
+                <ic:EventTriggerBehavior EventName="ItemClick">
+                    <ic:EventTriggerBehavior.Actions>
+                        <ic:InvokeCommandAction Command="{Binding Path=NavigateCommand}" />
+                    </ic:EventTriggerBehavior.Actions>
+                </ic:EventTriggerBehavior>
+                <ic:EventTriggerBehavior EventName="OptionsItemClick">
+                    <ic:EventTriggerBehavior.Actions>
+                        <ic:InvokeCommandAction Command="{Binding Path=NavigateCommand}" />
+                    </ic:EventTriggerBehavior.Actions>
+                </ic:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
             <Frame x:Name="contentFrame" />
         </controls:HamburgerMenu>
     </Grid>
