@@ -1,27 +1,15 @@
 ﻿namespace HardySoft.GpsTracker
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.InteropServices.WindowsRuntime;
     using System.Threading.Tasks;
     using HardySoft.GpsTracker.Extensions;
     using HardySoft.GpsTracker.ViewModels;
     using HardySoft.GpsTracker.Views;
     using Microsoft.Practices.Unity;
+    using Prism.Mvvm;
     using Prism.Unity.Windows;
-    using Windows.ApplicationModel;
     using Windows.ApplicationModel.Activation;
-    using Windows.Foundation;
-    using Windows.Foundation.Collections;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Controls.Primitives;
-    using Windows.UI.Xaml.Data;
-    using Windows.UI.Xaml.Input;
-    using Windows.UI.Xaml.Media;
-    using Windows.UI.Xaml.Navigation;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -60,7 +48,13 @@
         /// <returns>The completed task.</returns>
         protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
         {
+            // navigate to the default page of the application on start-up.
             this.NavigationService.Navigate(typeof(DashboardPage).GetPageToken(), null);
+
+            // Set a factory for the ViewModelLocator to use the container to construct view models so their
+            // dependencies get injected by the container
+            ViewModelLocationProvider.SetDefaultViewModelFactory((viewModelType) => this.Container.Resolve(viewModelType));
+
             return Task.CompletedTask;
         }
     }

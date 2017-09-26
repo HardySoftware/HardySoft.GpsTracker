@@ -14,4 +14,24 @@
             <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" Foreground="White" />
         </Grid>
     </DataTemplate>-->
+
+    <Style x:Key="WindowTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{ThemeResource SystemColorButtonTextColor}"></Setter>
+        <Setter Property="Margin" Value="1"></Setter>
+        <Setter Property="Padding" Value="5"></Setter>
+        <Setter Property="TextAlignment" Value="Left"></Setter>
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        <Setter Property="FontSize" Value="46"></Setter>
+        <Setter Property="FontWeight" Value="Light"></Setter>
+        <Setter Property="FontFamily" Value="Consolas"></Setter>
+    </Style>
+
+    <Style x:Key="CaptionTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{ThemeResource SystemColorButtonTextColor}"></Setter>
+        <Setter Property="TextAlignment" Value="Left"></Setter>
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="FontWeight" Value="Normal"></Setter>
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+    </Style>
 </ResourceDictionary>
