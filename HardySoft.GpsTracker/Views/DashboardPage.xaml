@@ -8,7 +8,8 @@
     xmlns:localTemplate="using:HardySoft.GpsTracker.Template"
     xmlns:prism="using:Prism.Windows.Mvvm"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
         <ResourceDictionary>
@@ -20,8 +21,8 @@
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10,0,0,0">
         <TextBlock RelativePanel.AlignTopWithPanel="True" x:Name="PageTitle" Style="{StaticResource WindowTitle}">Start/stop my movement tracking</TextBlock>
-        <TextBlock RelativePanel.Below="PageTitle" Style="{StaticResource CaptionTitle}">Activity</TextBlock>
-        <!--<ComboBox x:Name="ActivityOptions" ItemsSource="{Binding Path=SupportedActivityTypes}">
-        </ComboBox>-->
+        <TextBlock RelativePanel.Below="PageTitle" x:Name="ActivityLabel" Style="{StaticResource CaptionTitle}">Activity</TextBlock>
+        <ComboBox RelativePanel.Below="ActivityLabel" x:Name="ActivityOptions" ItemsSource="{Binding Path=SupportedActivityTypes}">
+        </ComboBox>
     </RelativePanel>
 </prism:SessionStateAwarePage>

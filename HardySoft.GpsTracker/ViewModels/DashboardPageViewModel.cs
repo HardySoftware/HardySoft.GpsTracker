@@ -11,7 +11,7 @@
     /// <summary>
     /// A view model for dashboard page.
     /// </summary>
-    public class DashboardViewModel : BindableBase
+    public class DashboardPageViewModel : BindableBase
     {
         /// <summary>
         /// Gets a list of supported activity types.
