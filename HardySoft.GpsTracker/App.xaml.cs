@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using HardySoft.GpsTracker.Extensions;
+    using HardySoft.GpsTracker.Services.Gpx;
     using HardySoft.GpsTracker.ViewModels;
     using HardySoft.GpsTracker.Views;
     using Microsoft.Practices.Unity;
@@ -48,6 +49,8 @@
         /// <returns>The completed task.</returns>
         protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
         {
+            this.Container.RegisterType<IGpxHandler, GpxHandler>();
+
             // navigate to the default page of the application on start-up.
             this.NavigationService.Navigate(typeof(DashboardPage).GetPageToken(), null);
 
