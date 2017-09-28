@@ -20,9 +20,54 @@
     </Page.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10,0,0,0">
-        <TextBlock RelativePanel.AlignTopWithPanel="True" x:Name="PageTitle" Style="{StaticResource WindowTitle}">Start/stop my movement tracking</TextBlock>
-        <TextBlock RelativePanel.Below="PageTitle" x:Name="ActivityLabel" Style="{StaticResource CaptionTitle}">Activity</TextBlock>
-        <ComboBox RelativePanel.Below="ActivityLabel" x:Name="ActivityOptions" ItemsSource="{Binding Path=SupportedActivityTypes}">
+        <TextBlock x:Name="PageTitle"
+                   Margin="0,0,0,20"
+                   RelativePanel.AlignTopWithPanel="True"
+                   Style="{StaticResource WindowTitle}">Start/stop my movement tracking</TextBlock>
+        <TextBlock x:Name="ActivityLabel"
+                   RelativePanel.Below="PageTitle"
+                   Style="{StaticResource CaptionTitle}">Activity</TextBlock>
+        <ComboBox x:Name="ActivityOptions"
+                  Margin="10,0,0,0"
+                  HorizontalAlignment="Stretch"
+                  RelativePanel.RightOf="ActivityLabel"
+                  RelativePanel.AlignRightWithPanel="True"
+                  RelativePanel.AlignVerticalCenterWith="ActivityLabel"
+                  ItemsSource="{Binding Path=SupportedActivityTypes}">
         </ComboBox>
+        <StackPanel x:Name="ButtonContainer"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    RelativePanel.Below="ActivityLabel"
+                    RelativePanel.AlignBottomWithPanel="True"
+                    RelativePanel.AlignLeftWithPanel="True"
+                    RelativePanel.AlignRightWithPanel="True">
+            <RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Button x:Name="StartPauseButton"
+                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                    <Viewbox Width="100" Height="100">
+                        <SymbolIcon Symbol="{Binding Path=StartPauseButtonIcon}"></SymbolIcon>
+                    </Viewbox>
+                </Button>
+                <Border x:Name="Separator" Width="10" RelativePanel.RightOf="StartPauseButton"></Border>
+                <Button x:Name="StopButton"
+                        RelativePanel.RightOf="Separator"
+                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                    <Viewbox Width="100" Height="100">
+                        <SymbolIcon Symbol="{Binding Path=StopButtonIcon}"></SymbolIcon>
+                    </Viewbox>
+                </Button>
+                <TextBlock x:Name="StartPauseButtonDescription"
+                           RelativePanel.Below="StartPauseButton"
+                           RelativePanel.AlignHorizontalCenterWith="StartPauseButton"
+                           Style="{StaticResource ButtonDescription}"
+                           Text="{Binding Path=StartPauseButtonDescription}"></TextBlock>
+                <TextBlock x:Name="StopButtonDescription"
+                           RelativePanel.Below="StopButton"
+                           RelativePanel.AlignHorizontalCenterWith="StopButton"
+                           Style="{StaticResource ButtonDescription}">Stop</TextBlock>
+            </RelativePanel>
+        </StackPanel>
+        
     </RelativePanel>
 </prism:SessionStateAwarePage>

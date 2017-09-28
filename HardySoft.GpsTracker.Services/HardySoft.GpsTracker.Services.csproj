@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="Gpx\GpxHandler.cs" />
     <Compile Include="Gpx\IGpxHandler.cs" />
+    <Compile Include="Models\TrackingStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\HardySoft.GpsTracker.Services.rd.xml" />
   </ItemGroup>
@@ -122,6 +123,7 @@
       <Version>1.0.2</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

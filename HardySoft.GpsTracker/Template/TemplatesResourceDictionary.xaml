@@ -34,4 +34,13 @@
         <Setter Property="FontWeight" Value="Normal"></Setter>
         <Setter Property="FontFamily" Value="Segoe UI"></Setter>
     </Style>
+
+    <Style x:Key="ButtonDescription" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{ThemeResource SystemColorButtonTextColor}"></Setter>
+        <Setter Property="TextAlignment" Value="Center"></Setter>
+        <Setter Property="TextWrapping" Value="NoWrap"></Setter>
+        <Setter Property="FontSize" Value="11"></Setter>
+        <Setter Property="FontWeight" Value="Normal"></Setter>
+        <Setter Property="FontFamily" Value="Calibri"></Setter>
+    </Style>
 </ResourceDictionary>
