@@ -1,4 +1,4 @@
-﻿namespace HardySoft.GpsTracker.Extensions
+﻿namespace HardySoft.GpsTracker.Support.Extensions
 {
     using System;
 

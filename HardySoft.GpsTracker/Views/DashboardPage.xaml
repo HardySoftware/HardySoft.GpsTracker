@@ -33,7 +33,11 @@
                   RelativePanel.RightOf="ActivityLabel"
                   RelativePanel.AlignRightWithPanel="True"
                   RelativePanel.AlignVerticalCenterWith="ActivityLabel"
-                  ItemsSource="{Binding Path=SupportedActivityTypes}">
+                  ItemsSource="{Binding Path=SupportedActivityTypeDisplay}"
+                  DisplayMemberPath="DisplayValue"
+                  SelectedValuePath="ActivityType"
+                  SelectedValue="{Binding Path=SelectedActivity}"
+                  SelectedIndex="{Binding Path=SelectedActivity, Converter={StaticResource cnvActivityType}, UpdateSourceTrigger=PropertyChanged}">
         </ComboBox>
         <StackPanel x:Name="ButtonContainer"
                     Orientation="Horizontal"

@@ -3,8 +3,8 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Windows.Input;
-    using HardySoft.GpsTracker.Extensions;
     using HardySoft.GpsTracker.Models;
+    using HardySoft.GpsTracker.Support.Extensions;
     using Prism.Commands;
     using Prism.Windows.Navigation;
     using Windows.UI.Xaml.Controls;

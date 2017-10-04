@@ -2,6 +2,7 @@
     x:Class="HardySoft.GpsTracker.Template.TemplatesResourceDictionary"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="using:HardySoft.GpsTracker.Support.Converters"
     xmlns:local="using:HardySoft.GpsTracker.Template"
     xmlns:localModel="using:HardySoft.GpsTracker.Models">
     <!--<DataTemplate x:Key="DefaultTemplate" x:DataType="localModel:MenuItem">
@@ -14,6 +15,8 @@
             <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" Foreground="White" />
         </Grid>
     </DataTemplate>-->
+
+    <converter:SelectedActivityTypeToIndexConverter x:Key="cnvActivityType"></converter:SelectedActivityTypeToIndexConverter>
 
     <Style x:Key="WindowTitle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{ThemeResource SystemColorButtonTextColor}"></Setter>

@@ -1,8 +1,8 @@
 ﻿namespace HardySoft.GpsTracker
 {
     using System.Threading.Tasks;
-    using HardySoft.GpsTracker.Extensions;
     using HardySoft.GpsTracker.Services.Gpx;
+    using HardySoft.GpsTracker.Support.Extensions;
     using HardySoft.GpsTracker.ViewModels;
     using HardySoft.GpsTracker.Views;
     using Microsoft.Practices.Unity;
