@@ -111,7 +111,11 @@
   <ItemGroup>
     <Compile Include="Gpx\GpxHandler.cs" />
     <Compile Include="Gpx\IGpxHandler.cs" />
+    <Compile Include="Location\ILocationTracker.cs" />
+    <Compile Include="Location\GpsLocationTracker.cs" />
+    <Compile Include="Models\LocationResponse.cs" />
     <Compile Include="Models\TrackingStatus.cs" />
+    <Compile Include="Models\UpdateTrackingProgress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\HardySoft.GpsTracker.Services.rd.xml" />
   </ItemGroup>

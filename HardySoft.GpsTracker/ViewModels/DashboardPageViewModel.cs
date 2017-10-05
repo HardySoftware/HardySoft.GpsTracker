@@ -4,15 +4,19 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.ServiceModel;
     using System.Text;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using HardySoft.GpsTracker.Models;
     using HardySoft.GpsTracker.Services.Gpx;
+    using HardySoft.GpsTracker.Services.Location;
     using HardySoft.GpsTracker.Services.Models;
     using Prism.Commands;
     using Prism.Mvvm;
     using Prism.Windows.Mvvm;
+    using Windows.ApplicationModel.Core;
+    using Windows.UI.Core;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -26,6 +30,11 @@
         private readonly IGpxHandler gpxHandler;
 
         /// <summary>
+        /// A location tracker implementation.
+        /// </summary>
+        private readonly ILocationTracker locationTracker;
+
+        /// <summary>
         /// The status of the tracking.
         /// </summary>
         private TrackingStatus status;
@@ -36,16 +45,26 @@
         private ActivityTypes selectedActivity;
 
         /// <summary>
+        /// The text information of the coordinate from location tracking service.
+        /// </summary>
+        private string coordinateInformation;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
-        public DashboardPageViewModel(IGpxHandler gpxHandler)
+        /// <param name="locationTracker">The location tracker implementation it depends on.</param>
+        public DashboardPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker)
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
+            this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClicked);
             this.SelectedActivity = ActivityTypes.Unknown;
+            this.CoordinateInformation = "Your location information";
+
+            this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
         }
 
         /// <summary>
@@ -122,11 +141,33 @@
         public ICommand StartPauseClickedCommand { get; private set; }
 
         /// <summary>
+        /// Gets the text information of the coordinate from location tracking service.
+        /// </summary>
+        public string CoordinateInformation
+        {
+            get
+            {
+                return this.coordinateInformation;
+            }
+
+            private set
+            {
+                this.SetProperty(ref this.coordinateInformation, value);
+            }
+        }
+
+        /// <summary>
         /// Handle start/pause button clicked event.
         /// </summary>
         /// <param name="argument">The event argument.</param>
-        private void OnStartPauseClicked(ItemClickEventArgs argument)
+        private async void OnStartPauseClicked(ItemClickEventArgs argument)
         {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                this.CoordinateInformation = "In progress.";
+            });
+
+            await this.locationTracker.StartTrack(5, 60);
         }
 
         /// <summary>
@@ -138,6 +179,25 @@
         {
             // return this.SelectedActivity == null ? false : true;
             return true;
+        }
+
+        /// <summary>
+        /// An event handler to handle GPS track changed event.
+        /// </summary>
+        /// <param name="statusUpdate">The event argument with detailed data.</param>
+        private async void LocationTracker_OnTrackingProgressChangedEvent(LocationResponse statusUpdate)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (statusUpdate.Coordinate != null)
+                {
+                    this.CoordinateInformation = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
+                }
+                else
+                {
+                    this.CoordinateInformation = "Getting your location now, please be patient.";
+                }
+            });
         }
     }
 }

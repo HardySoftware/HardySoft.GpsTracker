@@ -48,7 +48,8 @@
                     RelativePanel.AlignRightWithPanel="True">
             <RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Button x:Name="StartPauseButton"
-                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                        Command="{Binding Path=StartPauseClickedCommand}">
                     <Viewbox Width="100" Height="100">
                         <SymbolIcon Symbol="{Binding Path=StartPauseButtonIcon}"></SymbolIcon>
                     </Viewbox>
@@ -72,6 +73,13 @@
                            Style="{StaticResource ButtonDescription}">Stop</TextBlock>
             </RelativePanel>
         </StackPanel>
-        
+        <TextBlock x:Name="CurrentLocation"
+                   RelativePanel.AlignLeftWithPanel="True"
+                   RelativePanel.AlignBottomWithPanel="True"
+                   Style="{StaticResource ButtonDescription}"
+                   Text="{Binding Path=CoordinateInformation, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock x:Name="TrackingTime"
+                   RelativePanel.AlignRightWithPanel="True"
+                   RelativePanel.AlignBottomWithPanel="True"/>
     </RelativePanel>
 </prism:SessionStateAwarePage>
