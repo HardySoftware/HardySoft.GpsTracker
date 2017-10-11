@@ -32,7 +32,7 @@
         {
             var items = new List<MenuItem>();
 
-            items.Add(new MenuItem() { Icon = Symbol.Map, Name = "Start tracking", PageType = typeof(Views.BlankPage) });
+            items.Add(new MenuItem() { Icon = Symbol.Map, Name = "Start tracking", PageType = typeof(Views.DashboardPage) });
             items.Add(new MenuItem() { Icon = Symbol.BrowsePhotos, Name = "View tracking history", PageType = typeof(Views.BlankPage) });
             return items;
         }
@@ -44,7 +44,7 @@
         public static List<MenuItem> GetOptionsItems()
         {
             var items = new List<MenuItem>();
-            items.Add(new MenuItem() { Icon = Symbol.Setting, Name = "Settings", PageType = typeof(Views.BlankPage) });
+            items.Add(new MenuItem() { Icon = Symbol.Setting, Name = "Settings", PageType = typeof(Views.SettingPage) });
             return items;
         }
     }

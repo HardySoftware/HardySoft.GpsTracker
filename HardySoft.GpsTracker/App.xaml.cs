@@ -9,6 +9,7 @@
     using Microsoft.Practices.Unity;
     using Prism.Mvvm;
     using Prism.Unity.Windows;
+    using Prism.Windows.AppModel;
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -51,7 +52,8 @@
         protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
         {
             this.Container.RegisterType<IGpxHandler, GpxHandler>();
-            this.Container.RegisterType<ILocationTracker, GpsLocationTracker>();
+            this.Container.RegisterType<ILocationTracker, GpsLocationTracker>(new ContainerControlledLifetimeManager());
+            this.Container.RegisterInstance<ISessionStateService>(this.SessionStateService);
 
             // navigate to the default page of the application on start-up.
             this.NavigationService.Navigate(typeof(DashboardPage).GetPageToken(), null);

@@ -1,19 +1,14 @@
 ﻿namespace HardySoft.GpsTracker.ViewModels
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.ServiceModel;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Windows.Input;
     using HardySoft.GpsTracker.Models;
     using HardySoft.GpsTracker.Services.Gpx;
     using HardySoft.GpsTracker.Services.Location;
     using HardySoft.GpsTracker.Services.Models;
     using Prism.Commands;
-    using Prism.Mvvm;
+    using Prism.Windows.AppModel;
     using Prism.Windows.Mvvm;
     using Windows.ApplicationModel.Core;
     using Windows.UI.Core;
@@ -60,7 +55,7 @@
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
 
             this.status = TrackingStatus.Stopped;
-            this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClicked);
+            this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
             this.SelectedActivity = ActivityTypes.Unknown;
             this.CoordinateInformation = "Your location information";
 
@@ -75,6 +70,7 @@
         /// <summary>
         /// Gets or sets the selected activity.
         /// </summary>
+        [RestorableState]
         public ActivityTypes SelectedActivity
         {
             get
@@ -138,11 +134,13 @@
         /// <summary>
         /// Gets the command to handle start/pause button clicked event.
         /// </summary>
+        [RestorableState]
         public ICommand StartPauseClickedCommand { get; private set; }
 
         /// <summary>
         /// Gets the text information of the coordinate from location tracking service.
         /// </summary>
+        [RestorableState]
         public string CoordinateInformation
         {
             get
@@ -175,7 +173,7 @@
         /// </summary>
         /// <param name="argument">The argument event.</param>
         /// <returns>True if the click is allowed.</returns>
-        private bool CanStartPauseClicked(ItemClickEventArgs argument)
+        private bool CanStartPauseClick(ItemClickEventArgs argument)
         {
             // return this.SelectedActivity == null ? false : true;
             return true;
