@@ -188,6 +188,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HardySoft.GpsTracker.BackgroundTasks\HardySoft.GpsTracker.BackgroundTasks.csproj">
+      <Project>{13ac8d80-4461-4bab-842a-61dc2fbf67e2}</Project>
+      <Name>HardySoft.GpsTracker.BackgroundTasks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HardySoft.GpsTracker.Services\HardySoft.GpsTracker.Services.csproj">
       <Project>{43cee2c4-79c0-49e8-a3fa-be828c8c8a97}</Project>
       <Name>HardySoft.GpsTracker.Services</Name>
