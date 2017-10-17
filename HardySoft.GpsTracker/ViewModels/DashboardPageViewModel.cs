@@ -17,6 +17,7 @@
     using Prism.Windows.Navigation;
     using Windows.ApplicationModel.Background;
     using Windows.ApplicationModel.Core;
+    using Windows.ApplicationModel.ExtendedExecution;
     using Windows.Devices.Geolocation;
     using Windows.Storage;
     using Windows.UI.Core;
@@ -32,6 +33,11 @@
         /// The background task name.
         /// </summary>
         private const string BackgroundTaskName = "GPS_Tracking_Task";
+
+        /// <summary>
+        /// A location tracker implementation.
+        /// </summary>
+        private readonly ILocationTracker locationTracker;
 
         /// <summary>
         /// A GPX handler implementation.
@@ -62,9 +68,11 @@
         /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
-        public DashboardPageViewModel(IGpxHandler gpxHandler)
+        /// /// <param name="locationTracker">The location tracker implementation it depends on.</param>
+        public DashboardPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker)
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
+            this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
@@ -73,10 +81,12 @@
 
             this.refreshTimer = new DispatcherTimer()
             {
-                Interval = new TimeSpan(0, 0, 10)
+                Interval = new TimeSpan(0, 0, 30)
             };
 
             this.refreshTimer.Tick += async (object sender, object e) => { await this.DisplayMostRecentLocationData(string.Empty); };
+
+            this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
         }
 
         /// <summary>
@@ -204,19 +214,46 @@
         {
             Window.Current.VisibilityChanged += new WindowVisibilityChangedEventHandler(this.VisibilityChanged);
 
-            // RequestAccessAsync must be called on the UI thread.
-            var backGroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
-            if (backGroundAccessStatus == BackgroundAccessStatus.AlwaysAllowed || backGroundAccessStatus == BackgroundAccessStatus.AllowedSubjectToSystemPolicy)
-            {
-                var locationAccessStatus = await Geolocator.RequestAccessAsync();
+            var locationAccessStatus = await Geolocator.RequestAccessAsync();
 
-                if (locationAccessStatus == GeolocationAccessStatus.Allowed)
+            if (locationAccessStatus == GeolocationAccessStatus.Allowed)
+            {
+                // Step 1, create background task as fall back plan for extended session. RequestAccessAsync must be called on the UI thread.
+                var backGroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
+                if (backGroundAccessStatus == BackgroundAccessStatus.AlwaysAllowed || backGroundAccessStatus == BackgroundAccessStatus.AllowedSubjectToSystemPolicy)
                 {
                     this.StartBackgroundTask();
                     Debug.WriteLine($"{DateTime.Now} - Background task started");
                     this.refreshTimer.Start();
                     await this.DisplayMostRecentLocationData("In progress.");
                 }
+
+                // Step 2, request extended session.
+                await this.StartExtendedExecution();
+            }
+        }
+
+        /// <summary>
+        /// Start an extended execution session to track GPS activities.
+        /// </summary>
+        /// <returns>The asynchronous task.</returns>
+        private async Task StartExtendedExecution()
+        {
+            var newSession = new ExtendedExecutionSession();
+            newSession.Reason = ExtendedExecutionReason.LocationTracking;
+            newSession.Revoked += this.SessionRevoked;
+
+            var extendedSessionResult = await newSession.RequestExtensionAsync();
+
+            switch (extendedSessionResult)
+            {
+                case ExtendedExecutionResult.Allowed:
+                    // TODO define interval based on activity type.
+                    await this.locationTracker.StartTrack(5, 10);
+                    break;
+                default:
+                    await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
+                    break;
             }
         }
 
@@ -229,6 +266,41 @@
         {
             // return this.SelectedActivity == null ? false : true;
             return true;
+        }
+
+        /// <summary>
+        /// Handles event when an extended execution session is revoked.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="args">The event argument.</param>
+        private async void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        {
+            switch (args.Reason)
+            {
+                case ExtendedExecutionRevokedReason.Resumed:
+                    // The app returns to the foreground.
+                    await this.StartExtendedExecution();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// An event handler to handle GPS track changed event.
+        /// </summary>
+        /// <param name="statusUpdate">The event argument with detailed data.</param>
+        private async void LocationTracker_OnTrackingProgressChangedEvent(LocationResponse statusUpdate)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (statusUpdate.Coordinate != null)
+                {
+                    this.CoordinateInformation = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
+                }
+                else
+                {
+                    this.CoordinateInformation = "Getting your location now, please be patient.";
+                }
+            });
         }
 
         /// <summary>
