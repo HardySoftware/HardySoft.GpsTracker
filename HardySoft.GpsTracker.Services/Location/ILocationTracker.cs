@@ -20,5 +20,10 @@
         /// <param name="reportIntervalInSeconds">The report internal in seconds when position is changed.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task StartTrack(uint desireAccuracyInMeters, uint reportIntervalInSeconds);
+
+        /// <summary>
+        /// Stop location tracking.
+        /// </summary>
+        void StopTrack();
     }
 }

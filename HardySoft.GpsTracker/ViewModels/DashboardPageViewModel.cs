@@ -76,6 +76,7 @@
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
+            this.StopClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStopClicked, this.CanStopClick);
             this.SelectedActivity = ActivityTypes.Unknown;
             this.CoordinateInformation = "Your location information";
 
@@ -161,8 +162,12 @@
         /// <summary>
         /// Gets the command to handle start/pause button clicked event.
         /// </summary>
-        [RestorableState]
         public ICommand StartPauseClickedCommand { get; private set; }
+
+        /// <summary>
+        /// Gets the command to handle stop button clicked event.
+        /// </summary>
+        public ICommand StopClickedCommand { get; private set; }
 
         /// <summary>
         /// Gets the text information of the coordinate from location tracking service.
@@ -234,6 +239,40 @@
         }
 
         /// <summary>
+        /// Checks if the start/pause button can be clicked.
+        /// </summary>
+        /// <param name="argument">The argument event.</param>
+        /// <returns>True if the click is allowed.</returns>
+        private bool CanStartPauseClick(ItemClickEventArgs argument)
+        {
+            // return this.SelectedActivity == null ? false : true;
+            return true;
+        }
+
+        /// <summary>
+        /// Handle stop button clicked event.
+        /// </summary>
+        /// <param name="argument">The event argument.</param>
+        private void OnStopClicked(ItemClickEventArgs argument)
+        {
+            this.locationTracker.OnTrackingProgressChangedEvent -= this.LocationTracker_OnTrackingProgressChangedEvent;
+            this.locationTracker.StopTrack();
+
+            this.FindAndCancelExistingBackgroundTask();
+        }
+
+        /// <summary>
+        /// Checks if the stop button can be clicked.
+        /// </summary>
+        /// <param name="argument">The argument event.</param>
+        /// <returns>True if the click is allowed.</returns>
+        private bool CanStopClick(ItemClickEventArgs argument)
+        {
+            // return this.SelectedActivity == null ? false : true;
+            return true;
+        }
+
+        /// <summary>
         /// Start an extended execution session to track GPS activities.
         /// </summary>
         /// <returns>The asynchronous task.</returns>
@@ -255,17 +294,6 @@
                     await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
                     break;
             }
-        }
-
-        /// <summary>
-        /// Checks if the start/pause button can be clicked.
-        /// </summary>
-        /// <param name="argument">The argument event.</param>
-        /// <returns>True if the click is allowed.</returns>
-        private bool CanStartPauseClick(ItemClickEventArgs argument)
-        {
-            // return this.SelectedActivity == null ? false : true;
-            return true;
         }
 
         /// <summary>

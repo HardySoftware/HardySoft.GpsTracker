@@ -16,6 +16,11 @@
         private readonly LocationResponse statusUpdate;
 
         /// <summary>
+        /// The Geo locator object.
+        /// </summary>
+        private Geolocator geoLocator;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GpsLocationTracker"/> class.
         /// </summary>
         public GpsLocationTracker()
@@ -37,19 +42,26 @@
             {
                 case GeolocationAccessStatus.Allowed:
                     // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
-                    var geolocator = new Geolocator { DesiredAccuracyInMeters = desireAccuracyInMeters, ReportInterval = reportIntervalInSeconds * 1000 };
+                    this.geoLocator = new Geolocator { DesiredAccuracyInMeters = desireAccuracyInMeters, ReportInterval = reportIntervalInSeconds * 1000 };
 
                     // Subscribe to the StatusChanged event to get updates of location status changes.
-                    geolocator.StatusChanged += this.OnStatusChanged;
-                    geolocator.PositionChanged += this.OnPositionChanged;
+                    this.geoLocator.StatusChanged += this.OnStatusChanged;
+                    this.geoLocator.PositionChanged += this.OnPositionChanged;
 
                     // Carry out the operation.
-                    Geoposition firstPosition = await geolocator.GetGeopositionAsync();
+                    Geoposition firstPosition = await this.geoLocator.GetGeopositionAsync();
                     this.statusUpdate.Coordinate = firstPosition.Coordinate;
                     break;
             }
 
             this.OnTrackingProgressChangedEvent(this.statusUpdate);
+        }
+
+        /// <inheritdoc />
+        public void StopTrack()
+        {
+            this.geoLocator.StatusChanged -= this.OnStatusChanged;
+            this.geoLocator.PositionChanged -= this.OnPositionChanged;
         }
 
         /// <summary>

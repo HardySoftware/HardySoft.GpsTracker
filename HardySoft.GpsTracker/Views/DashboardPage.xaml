@@ -57,7 +57,8 @@
                 <Border x:Name="Separator" Width="10" RelativePanel.RightOf="StartPauseButton"></Border>
                 <Button x:Name="StopButton"
                         RelativePanel.RightOf="Separator"
-                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                        Command="{Binding Path=StopClickedCommand}">
                     <Viewbox Width="100" Height="100">
                         <SymbolIcon Symbol="{Binding Path=StopButtonIcon}"></SymbolIcon>
                     </Viewbox>
