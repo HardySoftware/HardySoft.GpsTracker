@@ -1,11 +1,12 @@
 ﻿namespace HardySoft.GpsTracker.Services.Models
 {
+    using System;
     using Windows.Devices.Geolocation;
 
     /// <summary>
     /// A model to contain location response information.
     /// </summary>
-    public class LocationResponse
+    public class LocationResponseEventArgs : EventArgs
     {
         /// <summary>
         /// Gets or sets the geolocation access status.

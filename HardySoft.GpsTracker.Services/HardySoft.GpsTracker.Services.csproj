@@ -71,6 +71,9 @@
     <PlatformTarget>ARM</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\GlobalRuleSet.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\ARM\Debug\HardySoft.GpsTracker.Services.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <PlatformTarget>ARM</PlatformTarget>
@@ -113,7 +116,7 @@
     <Compile Include="Gpx\IGpxHandler.cs" />
     <Compile Include="Location\ILocationTracker.cs" />
     <Compile Include="Location\GpsLocationTracker.cs" />
-    <Compile Include="Models\LocationResponse.cs" />
+    <Compile Include="Models\LocationResponseEventArgs.cs" />
     <Compile Include="Models\TrackingStatus.cs" />
     <Compile Include="Models\UpdateTrackingProgress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

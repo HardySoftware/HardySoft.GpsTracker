@@ -13,7 +13,7 @@
         /// <summary>
         /// The location tracking status object.
         /// </summary>
-        private readonly LocationResponse statusUpdate;
+        private readonly LocationResponseEventArgs statusUpdate;
 
         /// <summary>
         /// The Geo locator object.
@@ -25,7 +25,7 @@
         /// </summary>
         public GpsLocationTracker()
         {
-            this.statusUpdate = new LocationResponse();
+            this.statusUpdate = new LocationResponseEventArgs();
         }
 
         /// <inheritdoc />
@@ -54,7 +54,7 @@
                     break;
             }
 
-            this.OnTrackingProgressChangedEvent(this.statusUpdate);
+            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);
         }
 
         /// <inheritdoc />
@@ -72,7 +72,7 @@
         private void OnPositionChanged(Geolocator sender, PositionChangedEventArgs args)
         {
             this.statusUpdate.Coordinate = args.Position.Coordinate;
-            this.OnTrackingProgressChangedEvent(this.statusUpdate);
+            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@
         private void OnStatusChanged(Geolocator sender, StatusChangedEventArgs e)
         {
             this.statusUpdate.PositionStatus = e.Status;
-            this.OnTrackingProgressChangedEvent(this.statusUpdate);
+            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);
         }
     }
 }

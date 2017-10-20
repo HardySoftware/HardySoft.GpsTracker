@@ -65,6 +65,16 @@
         private DispatcherTimer refreshTimer;
 
         /// <summary>
+        /// A unique identifier of each individual tracking.
+        /// </summary>
+        private string trackingId;
+
+        /// <summary>
+        /// A flag to control the location changed event handler, make sure the previous operation is completed before it handles next one.
+        /// </summary>
+        private bool previousLocationEventChangedHandled = true;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
@@ -217,6 +227,8 @@
         /// <param name="argument">The event argument.</param>
         private async void OnStartPauseClicked(ItemClickEventArgs argument)
         {
+            this.trackingId = DateTime.Now.ToString("yyyyMMddHHmmss");
+
             Window.Current.VisibilityChanged += new WindowVisibilityChangedEventHandler(this.VisibilityChanged);
 
             var locationAccessStatus = await Geolocator.RequestAccessAsync();
@@ -288,10 +300,13 @@
             {
                 case ExtendedExecutionResult.Allowed:
                     // TODO define interval based on activity type.
-                    await this.locationTracker.StartTrack(5, 10);
+                    await this.locationTracker.StartTrack(5, 100);
                     break;
                 default:
-                    await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
+                    });
                     break;
             }
         }
@@ -315,20 +330,29 @@
         /// <summary>
         /// An event handler to handle GPS track changed event.
         /// </summary>
+        /// <param name="sender">The event sender.</param>
         /// <param name="statusUpdate">The event argument with detailed data.</param>
-        private async void LocationTracker_OnTrackingProgressChangedEvent(LocationResponse statusUpdate)
+        private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            if (this.previousLocationEventChangedHandled)
             {
+                this.previousLocationEventChangedHandled = false;
+
+                string message;
                 if (statusUpdate.Coordinate != null)
                 {
-                    this.CoordinateInformation = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
+                    message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
+                    await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate);
                 }
                 else
                 {
-                    this.CoordinateInformation = "Getting your location now, please be patient.";
+                    message = "Getting your location now, please be patient.";
                 }
-            });
+
+                await this.DisplayMostRecentLocationData(message);
+
+                this.previousLocationEventChangedHandled = true;
+            }
         }
 
         /// <summary>

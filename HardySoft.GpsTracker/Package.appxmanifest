@@ -3,8 +3,8 @@
   <Identity Name="04a63052-74e2-4306-9cb9-313377e501c8" Publisher="CN=hardy" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="04a63052-74e2-4306-9cb9-313377e501c8" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>HardySoft.GpsTracker</DisplayName>
-    <PublisherDisplayName>hardy</PublisherDisplayName>
+    <DisplayName>Tracking my movement</DisplayName>
+    <PublisherDisplayName>Hardy Software</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
