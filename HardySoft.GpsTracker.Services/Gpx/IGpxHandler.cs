@@ -9,11 +9,19 @@
     public interface IGpxHandler
     {
         /// <summary>
-        /// Record a geo point to GPX Xml section.
+        /// Record a geo point to GPX way-point section.
         /// </summary>
         /// <param name="trackingId">The unique identifier of each individual tracking.</param>
         /// <param name="coordinate">The coordinate information to record.</param>
         /// <returns>The asynchronous task.</returns>
         Task RecordLocationAsync(string trackingId, Geocoordinate coordinate);
+
+        /// <summary>
+        /// Compose previously saved way-point sections belonging to same tracking Id into a complete GPX file.
+        /// </summary>
+        /// <param name="trackingId">The unique identifier of each individual tracking.</param>
+        /// <param name="activityName">The name of activity.</param>
+        /// <returns>The asynchronous task.</returns>
+        Task ComposeGpxFile(string trackingId, string activityName);
     }
 }

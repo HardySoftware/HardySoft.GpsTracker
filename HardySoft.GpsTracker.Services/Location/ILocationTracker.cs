@@ -19,11 +19,11 @@
         /// <param name="desireAccuracyInMeters">The desired accuracy in meter from the GPS.</param>
         /// <param name="reportIntervalInSeconds">The report internal in seconds when position is changed.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task StartTrack(uint desireAccuracyInMeters, uint reportIntervalInSeconds);
+        Task StartTracking(uint desireAccuracyInMeters, uint reportIntervalInSeconds);
 
         /// <summary>
         /// Stop location tracking.
         /// </summary>
-        void StopTrack();
+        void StopTracking();
     }
 }

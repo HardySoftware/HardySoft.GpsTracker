@@ -265,12 +265,14 @@
         /// Handle stop button clicked event.
         /// </summary>
         /// <param name="argument">The event argument.</param>
-        private void OnStopClicked(ItemClickEventArgs argument)
+        private async void OnStopClicked(ItemClickEventArgs argument)
         {
             this.locationTracker.OnTrackingProgressChangedEvent -= this.LocationTracker_OnTrackingProgressChangedEvent;
-            this.locationTracker.StopTrack();
+            this.locationTracker.StopTracking();
 
             this.FindAndCancelExistingBackgroundTask();
+
+            await this.gpxHandler.ComposeGpxFile(this.trackingId, this.SelectedActivity.ToString());
         }
 
         /// <summary>
@@ -300,7 +302,7 @@
             {
                 case ExtendedExecutionResult.Allowed:
                     // TODO define interval based on activity type.
-                    await this.locationTracker.StartTrack(5, 100);
+                    await this.locationTracker.StartTracking(5, 100);
                     break;
                 default:
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>

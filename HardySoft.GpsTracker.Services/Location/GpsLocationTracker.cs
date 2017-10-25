@@ -32,7 +32,7 @@
         public event UpdateTrackingProgress OnTrackingProgressChangedEvent;
 
         /// <inheritdoc />
-        public async Task StartTrack(uint desireAccuracyInMeters, uint reportIntervalInSeconds)
+        public async Task StartTracking(uint desireAccuracyInMeters, uint reportIntervalInSeconds)
         {
             var accessStatus = await Geolocator.RequestAccessAsync();
 
@@ -58,10 +58,13 @@
         }
 
         /// <inheritdoc />
-        public void StopTrack()
+        public void StopTracking()
         {
-            this.geoLocator.StatusChanged -= this.OnStatusChanged;
-            this.geoLocator.PositionChanged -= this.OnPositionChanged;
+            if (this.geoLocator != null)
+            {
+                this.geoLocator.StatusChanged -= this.OnStatusChanged;
+                this.geoLocator.PositionChanged -= this.OnPositionChanged;
+            }
         }
 
         /// <summary>

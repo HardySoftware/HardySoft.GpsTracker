@@ -1,21 +1,55 @@
 ﻿namespace HardySoft.GpsTracker.Services.Gpx
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Text;
     using System.Threading.Tasks;
     using Windows.Devices.Geolocation;
     using Windows.Storage;
+    using Windows.Storage.Search;
 
     /// <summary>
     /// Class to implement <see cref="IGpxHandler"/> to provide GPX file handling.
     /// </summary>
     public class GpxHandler : IGpxHandler
     {
+        private const string GpxXmlTemplate = @"<gpx xmlns=""http://www.topografix.com/GPX/1/1""
+	xmlns:gpxx=""http://www.garmin.com/xmlschemas/GpxExtensions/v3""
+	xmlns:gpxtpx=""http://www.garmin.com/xmlschemas/TrackPointExtension/v1""
+	creator=""Track my movement""
+	version=""1.1""
+	xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+	xsi:schemaLocation=""http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd"">
+  <metadata>
+    <link href=""https://github.com/HardySoftware/track-my-movement"">
+      <text>Hardy Software Track my movement</text>
+    </link>
+    <time>{0}</time>
+  </metadata>
+  <trk>
+    <name>{1}</name>
+    <trkseg>
+{2}
+    </trkseg>
+  </trk>
+</gpx>";
+
         /// <summary>
         /// The Xml section template for a way-point.
         /// </summary>
         /// <remarks>It is based on GPX 1.1 schema.</remarks>
         private const string WaypointXmlTemplate = "<trkpt lat=\"{0}\" lon=\"{1}\"><ele>{2}</ele><time>{3}</time><desc>position source {4}, accuracy {5}.</desc></trkpt>";
+
+        /// <summary>
+        /// The working folder name for way-point section files.
+        /// </summary>
+        private const string WorkingFolderName = "working";
+
+        /// <summary>
+        /// The final folder name for GPX files.
+        /// </summary>
+        private const string GpxFolderName = "gpx";
 
         /// <inheritdoc />
         public async Task RecordLocationAsync(string trackingId, Geocoordinate coordinate)
@@ -34,21 +68,73 @@
                 coordinate.PositionSource,
                 coordinate.Accuracy);
 
-            var sectionFileName = trackingId + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xml";
+            var workingFolder = await GetFolder(WorkingFolderName);
 
-            var storageFolder = ApplicationData.Current.LocalFolder;
+            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
+            var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
-            var workingFolderName = "working";
-            var possibleWorkingFolder = await storageFolder.TryGetItemAsync(workingFolderName);
-            if (possibleWorkingFolder == null)
+            await FileIO.WriteTextAsync(waypointFile, waypointSection);
+        }
+
+        /// <inheritdoc />
+        public async Task ComposeGpxFile(string trackingId, string activityName)
+        {
+            if (string.IsNullOrWhiteSpace(trackingId))
             {
-                await storageFolder.CreateFolderAsync(workingFolderName);
+                return;
             }
 
-            var workingFolder = await storageFolder.GetFolderAsync(workingFolderName);
+            var workingFolder = await GetFolder(WorkingFolderName);
 
-            var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(waypointFile, waypointSection);
+            var queryOptions = new QueryOptions(CommonFileQuery.OrderByName, new List<string> { $".xml" })
+            {
+                UserSearchFilter = $"{trackingId}"
+            };
+
+            var queryResult = workingFolder.CreateFileQueryWithOptions(queryOptions);
+            var waypointFiles = await queryResult.GetFilesAsync();
+
+            var sb = new StringBuilder();
+            foreach (var file in waypointFiles)
+            {
+                var waypointXml = await FileIO.ReadTextAsync(file);
+                sb.Append(waypointXml);
+            }
+
+            var gpxXml = string.Format(GpxXmlTemplate, DateTime.Now.ToString("yyyyMMddHHmmss"), activityName, sb);
+
+            var gpxFolder = await GetFolder(GpxFolderName);
+
+            var gpxFileName = $"{trackingId}.xml";
+            var gpxFile = await gpxFolder.CreateFileAsync(gpxFileName, CreationCollisionOption.ReplaceExisting);
+
+            await FileIO.WriteTextAsync(gpxFile, gpxXml);
+
+            // Delete working files after GPX file is created
+            foreach (var file in waypointFiles)
+            {
+                await file.DeleteAsync();
+            }
+        }
+
+        /// <summary>
+        /// Make sure the designated folder exists, and return it.
+        /// </summary>
+        /// <param name="folderName">The name of the folder.</param>
+        /// <returns>Storage folder object representing the folder name.</returns>
+        private static async Task<StorageFolder> GetFolder(string folderName)
+        {
+            var storageFolder = ApplicationData.Current.LocalFolder;
+
+            var possibleFolder = await storageFolder.TryGetItemAsync(folderName);
+            if (possibleFolder == null)
+            {
+                await storageFolder.CreateFolderAsync(folderName);
+            }
+
+            var folder = await storageFolder.GetFolderAsync(folderName);
+
+            return folder;
         }
     }
 }
