@@ -15,7 +15,7 @@
         /// <summary>
         /// The complete collection of activity type display items.
         /// </summary>
-        private IEnumerable<ActivityTypeDisplay> collection = ActivityTypeDisplay.GetAllActivityTypeDisplay();
+        private IEnumerable<ActivityTypeDetail> collection = ActivityTypeDetail.GetAllActivityTypes();
 
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, string language)

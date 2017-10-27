@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using HardySoft.GpsTracker.BackgroundTasks;
@@ -103,7 +104,7 @@
         /// <summary>
         /// Gets a list of activity types and their display texts.
         /// </summary>
-        public ObservableCollection<ActivityTypeDisplay> SupportedActivityTypeDisplay => new ObservableCollection<ActivityTypeDisplay>(ActivityTypeDisplay.GetAllActivityTypeDisplay());
+        public ObservableCollection<ActivityTypeDetail> SupportedActivityTypes => new ObservableCollection<ActivityTypeDetail>(ActivityTypeDetail.GetAllActivityTypes());
 
         /// <summary>
         /// Gets or sets the selected activity.
@@ -301,8 +302,8 @@
             switch (extendedSessionResult)
             {
                 case ExtendedExecutionResult.Allowed:
-                    // TODO define interval based on activity type.
-                    await this.locationTracker.StartTracking(5, 100);
+                    var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+                    await this.locationTracker.StartTracking(activityDetail.DesiredAccuracy, activityDetail.TrackingInterval);
                     break;
                 default:
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>

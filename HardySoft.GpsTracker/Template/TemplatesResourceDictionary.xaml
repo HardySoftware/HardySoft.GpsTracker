@@ -24,7 +24,7 @@
         <Setter Property="Padding" Value="5"></Setter>
         <Setter Property="TextAlignment" Value="Left"></Setter>
         <Setter Property="TextWrapping" Value="Wrap"></Setter>
-        <Setter Property="FontSize" Value="46"></Setter>
+        <Setter Property="FontSize" Value="24"></Setter>
         <Setter Property="FontWeight" Value="Light"></Setter>
         <Setter Property="FontFamily" Value="Consolas"></Setter>
     </Style>
