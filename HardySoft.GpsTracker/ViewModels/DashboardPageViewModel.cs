@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using HardySoft.GpsTracker.BackgroundTasks;
@@ -20,6 +21,7 @@
     using Windows.ApplicationModel.Core;
     using Windows.ApplicationModel.ExtendedExecution;
     using Windows.Devices.Geolocation;
+    using Windows.Foundation.Diagnostics;
     using Windows.Storage;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
@@ -44,6 +46,8 @@
         /// A GPX handler implementation.
         /// </summary>
         private readonly IGpxHandler gpxHandler;
+
+        private readonly LoggingChannel loggingChannel;
 
         /// <summary>
         /// The status of the tracking.
@@ -71,11 +75,6 @@
         private string trackingId;
 
         /// <summary>
-        /// A flag to control the location changed event handler, make sure the previous operation is completed before it handles next one.
-        /// </summary>
-        private bool previousLocationEventChangedHandled = true;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
@@ -84,6 +83,8 @@
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
+
+            this.loggingChannel = new LoggingChannel("Tracking my movement", null, new Guid("34FB6319-44FD-4DA0-99E4-2CFC3E443348"));
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
@@ -337,25 +338,26 @@
         /// <param name="statusUpdate">The event argument with detailed data.</param>
         private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
         {
-            if (this.previousLocationEventChangedHandled)
+            var loggingField = new LoggingFields();
+            loggingField.BeginStruct("Coordinate");
+            loggingField.AddBoolean("Coordinate null", statusUpdate.Coordinate == null);
+            loggingField.AddString("Tracking id", this.trackingId);
+            loggingField.EndStruct();
+
+            this.loggingChannel.LogEvent("Location changed", loggingField, LoggingLevel.Verbose);
+
+            string message;
+            if (statusUpdate.Coordinate != null)
             {
-                this.previousLocationEventChangedHandled = false;
-
-                string message;
-                if (statusUpdate.Coordinate != null)
-                {
-                    message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
-                    await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate);
-                }
-                else
-                {
-                    message = "Getting your location now, please be patient.";
-                }
-
-                await this.DisplayMostRecentLocationData(message);
-
-                this.previousLocationEventChangedHandled = true;
+                message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
+                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate);
             }
+            else
+            {
+                message = "Getting your location now, please be patient.";
+            }
+
+            await this.DisplayMostRecentLocationData(message);
         }
 
         /// <summary>
