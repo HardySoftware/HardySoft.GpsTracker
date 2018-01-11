@@ -6,6 +6,7 @@
     using HardySoft.GpsTracker.Support.Extensions;
     using HardySoft.GpsTracker.ViewModels;
     using HardySoft.GpsTracker.Views;
+    using Microsoft.HockeyApp;
     using Microsoft.Practices.Unity;
     using Prism.Mvvm;
     using Prism.Unity.Windows;
@@ -28,6 +29,13 @@
         /// </remarks>
         public App()
         {
+            var telemetryConfiguration = new TelemetryConfiguration()
+            {
+                Collectors = WindowsCollectors.Metadata | WindowsCollectors.Session | WindowsCollectors.UnhandledException
+            };
+
+            HockeyClient.Current.Configure("b43a48c928604536967ce7f9bb36a637", telemetryConfiguration);
+
             this.InitializeComponent();
         }
 
