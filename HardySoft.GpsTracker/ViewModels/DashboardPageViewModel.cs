@@ -307,10 +307,7 @@
                     await this.locationTracker.StartTracking(activityDetail.DesiredAccuracy, activityDetail.TrackingInterval);
                     break;
                 default:
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
-                    });
+                    await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
                     break;
             }
         }
