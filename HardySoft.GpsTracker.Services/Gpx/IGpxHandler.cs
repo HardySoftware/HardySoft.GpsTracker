@@ -21,7 +21,7 @@
         /// </summary>
         /// <param name="trackingId">The unique identifier of each individual tracking.</param>
         /// <param name="activityName">The name of activity.</param>
-        /// <returns>The asynchronous task.</returns>
-        Task ComposeGpxFile(string trackingId, string activityName);
+        /// <returns>The number of way points found for the final GPX file.</returns>
+        Task<int> ComposeGpxFile(string trackingId, string activityName);
     }
 }

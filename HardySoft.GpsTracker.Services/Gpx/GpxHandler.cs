@@ -5,6 +5,9 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using Microsoft.HockeyApp;
+    using Polly;
+    using Polly.Retry;
     using Windows.Devices.Geolocation;
     using Windows.Storage;
     using Windows.Storage.Search;
@@ -51,6 +54,24 @@
         /// </summary>
         private const string GpxFolderName = "gpx";
 
+        /// <summary>
+        /// Retry policy definition for creating way point file.
+        /// </summary>
+        private readonly RetryPolicy waypointFileRetryPolicy;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GpxHandler"/> class.
+        /// </summary>
+        public GpxHandler()
+        {
+            this.waypointFileRetryPolicy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(
+                3,
+                retryCount => TimeSpan.FromSeconds(retryCount),
+                (exception, timespan) => { HockeyClient.Current.TrackException(exception, new Dictionary<string, string>() { { "Polly Exception Retry", string.Empty } }); });
+        }
+
         /// <inheritdoc />
         public async Task RecordLocationAsync(string trackingId, Geocoordinate coordinate)
         {
@@ -73,16 +94,19 @@
             var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
             var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
-            await FileIO.WriteTextAsync(waypointFile, waypointSection);
+            await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(waypointFile, waypointSection));
         }
 
         /// <inheritdoc />
-        public async Task ComposeGpxFile(string trackingId, string activityName)
+        public async Task<int> ComposeGpxFile(string trackingId, string activityName)
         {
             if (string.IsNullOrWhiteSpace(trackingId))
             {
-                return;
+                return 0;
             }
+
+            var gpxFileName = $"{trackingId}.xml";
+            HockeyClient.Current.TrackEvent("Compose GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
@@ -102,10 +126,7 @@
             }
 
             var gpxXml = string.Format(GpxXmlTemplate, DateTime.Now.ToString("yyyyMMddHHmmss"), activityName, sb);
-
             var gpxFolder = await GetFolder(GpxFolderName);
-
-            var gpxFileName = $"{trackingId}.xml";
             var gpxFile = await gpxFolder.CreateFileAsync(gpxFileName, CreationCollisionOption.ReplaceExisting);
 
             await FileIO.WriteTextAsync(gpxFile, gpxXml);
@@ -113,8 +134,10 @@
             // Delete working files after GPX file is created
             foreach (var file in waypointFiles)
             {
-                await file.DeleteAsync();
+                await this.waypointFileRetryPolicy.ExecuteAsync(async () => await file.DeleteAsync());
             }
+
+            return waypointFiles.Count;
         }
 
         /// <summary>

@@ -274,7 +274,9 @@
 
             this.FindAndCancelExistingBackgroundTask();
 
-            await this.gpxHandler.ComposeGpxFile(this.trackingId, this.SelectedActivity.ToString());
+            int wayPointNumber = await this.gpxHandler.ComposeGpxFile(this.trackingId, this.SelectedActivity.ToString());
+
+            await this.DisplayMostRecentLocationData($"Gpx file created with {wayPointNumber} points collected.");
         }
 
         /// <summary>
