@@ -13,6 +13,7 @@
     using HardySoft.GpsTracker.Services.Gpx;
     using HardySoft.GpsTracker.Services.Location;
     using HardySoft.GpsTracker.Services.Models;
+    using Microsoft.HockeyApp;
     using Prism.Commands;
     using Prism.Windows.AppModel;
     using Prism.Windows.Mvvm;
@@ -46,8 +47,6 @@
         /// A GPX handler implementation.
         /// </summary>
         private readonly IGpxHandler gpxHandler;
-
-        private readonly LoggingChannel loggingChannel;
 
         /// <summary>
         /// The status of the tracking.
@@ -83,8 +82,6 @@
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
-
-            this.loggingChannel = new LoggingChannel("Tracking my movement", null, new Guid("34FB6319-44FD-4DA0-99E4-2CFC3E443348"));
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
@@ -337,13 +334,13 @@
         /// <param name="statusUpdate">The event argument with detailed data.</param>
         private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
         {
-            var loggingField = new LoggingFields();
-            loggingField.BeginStruct("Coordinate");
-            loggingField.AddBoolean("Coordinate null", statusUpdate.Coordinate == null);
-            loggingField.AddString("Tracking id", this.trackingId);
-            loggingField.EndStruct();
+            var eventProperties = new Dictionary<string, string>()
+                {
+                    { "Coordinate null", (statusUpdate.Coordinate == null).ToString() },
+                    { "Tracking id", this.trackingId }
+                };
 
-            this.loggingChannel.LogEvent("Location changed", loggingField, LoggingLevel.Verbose);
+            HockeyClient.Current.TrackEvent("Location changed", eventProperties, null);
 
             string message;
             if (statusUpdate.Coordinate != null)
@@ -424,11 +421,6 @@
                 if (!string.IsNullOrWhiteSpace(message))
                 {
                     this.CoordinateInformation = message;
-                }
-                else
-                {
-                    // TODO implement the logic.
-                    this.CoordinateInformation = string.Empty;
                 }
             });
         }

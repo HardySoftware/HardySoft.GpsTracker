@@ -65,11 +65,14 @@
         public GpxHandler()
         {
             this.waypointFileRetryPolicy = Policy
-                .Handle<Exception>()
+                .Handle<FileLoadException>()
                 .WaitAndRetryAsync(
                 3,
                 retryCount => TimeSpan.FromSeconds(retryCount),
-                (exception, timespan) => { HockeyClient.Current.TrackException(exception, new Dictionary<string, string>() { { "Polly Exception Retry", string.Empty } }); });
+                (exception, timespan) =>
+                {
+                    HockeyClient.Current.TrackException(exception, new Dictionary<string, string>() { { "Polly Exception Retry", string.Empty } });
+                });
         }
 
         /// <inheritdoc />
