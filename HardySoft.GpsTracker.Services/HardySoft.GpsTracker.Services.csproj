@@ -114,11 +114,13 @@
   <ItemGroup>
     <Compile Include="Gpx\GpxHandler.cs" />
     <Compile Include="Gpx\IGpxHandler.cs" />
+    <Compile Include="LocalSetting\ISettingOperator.cs" />
+    <Compile Include="LocalSetting\SettingOperator.cs" />
     <Compile Include="Location\ILocationTracker.cs" />
     <Compile Include="Location\GpsLocationTracker.cs" />
-    <Compile Include="Models\LocationResponseEventArgs.cs" />
-    <Compile Include="Models\TrackingStatus.cs" />
-    <Compile Include="Models\UpdateTrackingProgress.cs" />
+    <Compile Include="Gpx\Models\LocationResponseEventArgs.cs" />
+    <Compile Include="Gpx\Models\TrackingStatus.cs" />
+    <Compile Include="Gpx\Models\UpdateTrackingProgress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\HardySoft.GpsTracker.Services.rd.xml" />
   </ItemGroup>

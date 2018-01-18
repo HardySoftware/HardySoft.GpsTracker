@@ -5,14 +5,14 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using HardySoft.GpsTracker.BackgroundTasks;
     using HardySoft.GpsTracker.Models;
     using HardySoft.GpsTracker.Services.Gpx;
+    using HardySoft.GpsTracker.Services.Gpx.Models;
+    using HardySoft.GpsTracker.Services.LocalSetting;
     using HardySoft.GpsTracker.Services.Location;
-    using HardySoft.GpsTracker.Services.Models;
     using Microsoft.HockeyApp;
     using Prism.Commands;
     using Prism.Windows.AppModel;
@@ -22,8 +22,6 @@
     using Windows.ApplicationModel.Core;
     using Windows.ApplicationModel.ExtendedExecution;
     using Windows.Devices.Geolocation;
-    using Windows.Foundation.Diagnostics;
-    using Windows.Storage;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -47,6 +45,11 @@
         /// A GPX handler implementation.
         /// </summary>
         private readonly IGpxHandler gpxHandler;
+
+        /// <summary>
+        /// A setting operator implementation.
+        /// </summary>
+        private readonly ISettingOperator settingOperator;
 
         /// <summary>
         /// The status of the tracking.
@@ -77,17 +80,21 @@
         /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
-        /// /// <param name="locationTracker">The location tracker implementation it depends on.</param>
-        public DashboardPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker)
+        /// <param name="locationTracker">The location tracker implementation it depends on.</param>
+        /// <param name="settingOperator">The setting operator implementation it depends on.</param>
+        public DashboardPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker, ISettingOperator settingOperator)
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
+            this.settingOperator = settingOperator ?? throw new ArgumentNullException(nameof(settingOperator));
 
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
             this.StopClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStopClicked, this.CanStopClick);
             this.SelectedActivity = ActivityTypes.Unknown;
             this.CoordinateInformation = "Your location information";
+
+            this.settingOperator.ResetSettings();
 
             this.refreshTimer = new DispatcherTimer()
             {
@@ -199,15 +206,14 @@
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
             // Check if the background task is active, the "IsBackgroundTaskActive" state is set by the background task.
-            bool isBackgroundTaskActive =
-                ApplicationData.Current.LocalSettings.Values.ContainsKey("IsBackgroundTaskActive") &&
-                (bool)ApplicationData.Current.LocalSettings.Values["IsBackgroundTaskActive"];
+            bool isBackgroundTaskActive = this.settingOperator.GetBackgroundTaskActiveStatus();
 
             if (isBackgroundTaskActive)
             {
                 this.refreshTimer.Start();
             }
 
+            this.settingOperator.SetAppVisibilityStatus(true);
             base.OnNavigatedTo(e, viewModelState);
         }
 
@@ -215,7 +221,7 @@
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
             Window.Current.VisibilityChanged -= new WindowVisibilityChangedEventHandler(this.VisibilityChanged);
-            ApplicationData.Current.LocalSettings.Values["IsAppVisible"] = false;
+            this.settingOperator.SetAppVisibilityStatus(false);
 
             base.OnNavigatingFrom(e, viewModelState, suspending);
         }
@@ -228,12 +234,24 @@
         {
             this.trackingId = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-            Window.Current.VisibilityChanged += new WindowVisibilityChangedEventHandler(this.VisibilityChanged);
+            Window.Current.VisibilityChanged += this.VisibilityChanged;
 
             var locationAccessStatus = await Geolocator.RequestAccessAsync();
 
             if (locationAccessStatus == GeolocationAccessStatus.Allowed)
             {
+                if (this.SelectedActivity == ActivityTypes.Unknown)
+                {
+                    this.settingOperator.SetGpsAccuracyExpectation(null);
+                }
+                else
+                {
+                    var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+                    this.settingOperator.SetGpsAccuracyExpectation(activityDetail.DesiredAccuracy);
+                }
+
+                this.settingOperator.SetTrackingId(this.trackingId);
+
                 // Step 1, create background task as fall back plan for extended session. RequestAccessAsync must be called on the UI thread.
                 var backGroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
                 if (backGroundAccessStatus == BackgroundAccessStatus.AlwaysAllowed || backGroundAccessStatus == BackgroundAccessStatus.AllowedSubjectToSystemPolicy)
@@ -266,6 +284,8 @@
         /// <param name="argument">The event argument.</param>
         private async void OnStopClicked(ItemClickEventArgs argument)
         {
+            this.settingOperator.ResetSettings();
+            Window.Current.VisibilityChanged -= this.VisibilityChanged;
             this.locationTracker.OnTrackingProgressChangedEvent -= this.LocationTracker_OnTrackingProgressChangedEvent;
             this.locationTracker.StopTracking();
 
@@ -346,7 +366,7 @@
             if (statusUpdate.Coordinate != null)
             {
                 message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
-                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate);
+                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "E");
             }
             else
             {
@@ -363,7 +383,7 @@
         /// <param name="e">Event data that can be examined for the current visibility state.</param>
         private void VisibilityChanged(object sender, VisibilityChangedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["IsAppVisible"] = e.Visible;
+            this.settingOperator.SetAppVisibilityStatus(e.Visible);
 
             if (e.Visible)
             {

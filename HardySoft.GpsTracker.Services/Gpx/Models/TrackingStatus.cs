@@ -1,4 +1,4 @@
-﻿namespace HardySoft.GpsTracker.Services.Models
+﻿namespace HardySoft.GpsTracker.Services.Gpx.Models
 {
     /// <summary>
     /// All possible statuses for GPS tracking.

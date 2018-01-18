@@ -36,7 +36,7 @@
                   ItemsSource="{Binding Path=SupportedActivityTypes}"
                   DisplayMemberPath="DisplayValue"
                   SelectedValuePath="ActivityType"
-                  SelectedValue="{Binding Path=SelectedActivity}"
+                  SelectedValue="{Binding Path=SelectedActivity, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                   SelectedIndex="{Binding Path=SelectedActivity, Converter={StaticResource cnvActivityType}, UpdateSourceTrigger=PropertyChanged}">
         </ComboBox>
         <StackPanel x:Name="ButtonContainer"

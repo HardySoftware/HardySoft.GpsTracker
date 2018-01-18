@@ -1,4 +1,4 @@
-﻿namespace HardySoft.GpsTracker.Services.Models
+﻿namespace HardySoft.GpsTracker.Services.Gpx.Models
 {
     /// <summary>
     /// A delegate to allow the consumer to receive update of the location tracking status.

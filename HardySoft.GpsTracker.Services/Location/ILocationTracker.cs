@@ -1,7 +1,8 @@
 ﻿namespace HardySoft.GpsTracker.Services.Location
 {
     using System.Threading.Tasks;
-    using HardySoft.GpsTracker.Services.Models;
+    using HardySoft.GpsTracker.Services.Gpx.Models;
+    using Windows.Devices.Geolocation;
 
     /// <summary>
     /// An interface to define location tracker functions.
@@ -14,7 +15,7 @@
         event UpdateTrackingProgress OnTrackingProgressChangedEvent;
 
         /// <summary>
-        /// Start location tracking.
+        /// Starts location tracking.
         /// </summary>
         /// <param name="desireAccuracyInMeters">The desired accuracy in meter from the GPS.</param>
         /// <param name="reportIntervalInSeconds">The report internal in seconds when position is changed.</param>
@@ -22,8 +23,15 @@
         Task StartTracking(uint desireAccuracyInMeters, uint reportIntervalInSeconds);
 
         /// <summary>
-        /// Stop location tracking.
+        /// Stops location tracking.
         /// </summary>
         void StopTracking();
+
+        /// <summary>
+        /// Gets the current location for only once.
+        /// </summary>
+        /// <param name="desireAccuracyInMeters">The desired accuracy in meter from the GPS.</param>
+        /// <returns>The coordination of current location.</returns>
+        Task<Geocoordinate> GetCurrentLocation(uint desireAccuracyInMeters);
     }
 }

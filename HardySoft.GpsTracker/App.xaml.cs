@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using HardySoft.GpsTracker.Services.Gpx;
+    using HardySoft.GpsTracker.Services.LocalSetting;
     using HardySoft.GpsTracker.Services.Location;
     using HardySoft.GpsTracker.Support.Extensions;
     using HardySoft.GpsTracker.ViewModels;
@@ -61,6 +62,7 @@
         {
             this.Container.RegisterType<IGpxHandler, GpxHandler>();
             this.Container.RegisterType<ILocationTracker, GpsLocationTracker>(new ContainerControlledLifetimeManager());
+            this.Container.RegisterType<ISettingOperator, SettingOperator>(new ContainerControlledLifetimeManager());
             this.Container.RegisterInstance<ISessionStateService>(this.SessionStateService);
 
             // navigate to the default page of the application on start-up.

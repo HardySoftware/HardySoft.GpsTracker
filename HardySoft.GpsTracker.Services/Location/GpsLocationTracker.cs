@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using HardySoft.GpsTracker.Services.Models;
+    using HardySoft.GpsTracker.Services.Gpx.Models;
     using Windows.Devices.Geolocation;
 
     /// <summary>
@@ -64,6 +64,24 @@
             {
                 this.geoLocator.StatusChanged -= this.OnStatusChanged;
                 this.geoLocator.PositionChanged -= this.OnPositionChanged;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<Geocoordinate> GetCurrentLocation(uint desireAccuracyInMeters)
+        {
+            var accessStatus = await Geolocator.RequestAccessAsync();
+            switch (accessStatus)
+            {
+                case GeolocationAccessStatus.Allowed:
+                    // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
+                    this.geoLocator = new Geolocator { DesiredAccuracyInMeters = desireAccuracyInMeters };
+
+                    // Carry out the operation.
+                    Geoposition currentPosition = await this.geoLocator.GetGeopositionAsync();
+                    return currentPosition.Coordinate;
+                default:
+                    return null;
             }
         }
 

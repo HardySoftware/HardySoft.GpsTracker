@@ -13,8 +13,9 @@
         /// </summary>
         /// <param name="trackingId">The unique identifier of each individual tracking.</param>
         /// <param name="coordinate">The coordinate information to record.</param>
+        /// <param name="comment">Additional comment message.</param>
         /// <returns>The asynchronous task.</returns>
-        Task RecordLocationAsync(string trackingId, Geocoordinate coordinate);
+        Task RecordLocationAsync(string trackingId, Geocoordinate coordinate, string comment);
 
         /// <summary>
         /// Compose previously saved way-point sections belonging to same tracking Id into a complete GPX file.

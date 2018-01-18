@@ -17,6 +17,9 @@
     /// </summary>
     public class GpxHandler : IGpxHandler
     {
+        /// <summary>
+        /// The Xml template for a complete GPX file.
+        /// </summary>
         private const string GpxXmlTemplate = @"<gpx xmlns=""http://www.topografix.com/GPX/1/1""
 	xmlns:gpxx=""http://www.garmin.com/xmlschemas/GpxExtensions/v3""
 	xmlns:gpxtpx=""http://www.garmin.com/xmlschemas/TrackPointExtension/v1""
@@ -39,10 +42,10 @@
 </gpx>";
 
         /// <summary>
-        /// The Xml section template for a way-point.
+        /// The Xml section template for a single way-point section in GPX file.
         /// </summary>
         /// <remarks>It is based on GPX 1.1 schema.</remarks>
-        private const string WaypointXmlTemplate = "<trkpt lat=\"{0}\" lon=\"{1}\"><ele>{2}</ele><time>{3}</time><desc>position source {4}, accuracy {5}.</desc></trkpt>";
+        private const string WaypointXmlTemplate = "<trkpt lat=\"{0}\" lon=\"{1}\"><ele>{2}</ele><time>{3}</time><desc>position source {4}, accuracy {5}. Additional comment {6}</desc></trkpt>";
 
         /// <summary>
         /// The working folder name for way-point section files.
@@ -67,7 +70,7 @@
             this.waypointFileRetryPolicy = Policy
                 .Handle<FileLoadException>()
                 .WaitAndRetryAsync(
-                3,
+                5,
                 retryCount => TimeSpan.FromSeconds(retryCount),
                 (exception, timespan) =>
                 {
@@ -76,7 +79,7 @@
         }
 
         /// <inheritdoc />
-        public async Task RecordLocationAsync(string trackingId, Geocoordinate coordinate)
+        public async Task RecordLocationAsync(string trackingId, Geocoordinate coordinate, string comment)
         {
             if (string.IsNullOrWhiteSpace(trackingId))
             {
@@ -90,7 +93,8 @@
                 coordinate.Point.Position.Altitude,
                 DateTime.Now.ToUniversalTime().ToString("o"),
                 coordinate.PositionSource,
-                coordinate.Accuracy);
+                coordinate.Accuracy,
+                comment);
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
@@ -109,7 +113,7 @@
             }
 
             var gpxFileName = $"{trackingId}.xml";
-            HockeyClient.Current.TrackEvent("Compose GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
+            HockeyClient.Current.TrackEvent("Composing GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
@@ -139,6 +143,8 @@
             {
                 await this.waypointFileRetryPolicy.ExecuteAsync(async () => await file.DeleteAsync());
             }
+
+            HockeyClient.Current.TrackEvent("Composed GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
 
             return waypointFiles.Count;
         }

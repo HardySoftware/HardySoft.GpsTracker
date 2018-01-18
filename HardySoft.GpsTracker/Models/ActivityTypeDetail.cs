@@ -26,7 +26,7 @@
         public uint TrackingInterval { get; private set; }
 
         /// <summary>
-        /// Gets the desired accuracy in metre for tracking purpose.
+        /// Gets the desired accuracy in meter for tracking purpose.
         /// </summary>
         public uint DesiredAccuracy { get; private set; }
 
@@ -61,17 +61,17 @@
         /// </summary>
         /// <param name="type">The activity type.</param>
         /// <param name="interval">Tracking interval in second.</param>
-        /// <param name="accuracy">Tracking accuracy in metre.</param>
+        /// <param name="accuracy">Tracking accuracy in meter.</param>
         private static void GetActivityTrackingIntervalAndAccuracy(ActivityTypes type, out uint interval, out uint accuracy)
         {
             switch (type)
             {
                 case ActivityTypes.Hiking:
-                    interval = 60;
-                    accuracy = 5;
+                    interval = 120;
+                    accuracy = 10;
                     break;
                 case ActivityTypes.Cycling:
-                    interval = 10;
+                    interval = 30;
                     accuracy = 5;
                     break;
                 default:
