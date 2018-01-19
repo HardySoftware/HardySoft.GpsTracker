@@ -423,7 +423,7 @@
             {
                 Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed.");
                 message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
-                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "E");
+                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "source E");
             }
             else
             {

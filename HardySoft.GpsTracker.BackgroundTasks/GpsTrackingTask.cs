@@ -51,7 +51,7 @@
                 var locationTracker = new GpsLocationTracker();
                 var coordinate = await locationTracker.GetCurrentLocation(accuracy.Value);
 
-                await this.gpxHandler.RecordLocationAsync(this.setting.GetTrackingId(), coordinate, "B");
+                await this.gpxHandler.RecordLocationAsync(this.setting.GetTrackingId(), coordinate, "Source B");
             }
             else
             {
