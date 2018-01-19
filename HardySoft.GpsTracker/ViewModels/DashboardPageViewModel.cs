@@ -125,6 +125,26 @@
             set
             {
                 this.SetProperty(ref this.selectedActivity, value);
+
+                // The enabled statuses of 2 buttons are also impacted by this value.
+                this.OnPropertyChanged(nameof(this.IsStartPauseButtonEnabled));
+                this.OnPropertyChanged(nameof(this.IsStopButtonEnabled));
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the activity option combo box is enabled or not.
+        /// </summary>
+        public bool IsActivityOptionEnabled
+        {
+            get
+            {
+                if (this.status == TrackingStatus.Started)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 
@@ -152,21 +172,24 @@
         /// <summary>
         /// Gets the description text for the start/pause button.
         /// </summary>
-        public string StartPauseButtonDescription
+        public string StartPauseButtonDescription => "Start tracking";
+
+        /// <summary>
+        /// Gets a value indicating whether the start/pause button is enabled or not.
+        /// </summary>
+        public bool IsStartPauseButtonEnabled
         {
             get
             {
-                switch (this.status)
+                if (this.SelectedActivity != ActivityTypes.Unknown)
                 {
-                    case TrackingStatus.Started:
-                        return Symbol.Pause.ToString();
-                    case TrackingStatus.Paused:
-                        return Symbol.Play.ToString();
-                    case TrackingStatus.Stopped:
-                        return Symbol.Play.ToString();
-                    default:
-                        throw new InvalidOperationException();
+                    if (this.status == TrackingStatus.Stopped)
+                    {
+                        return true;
+                    }
                 }
+
+                return false;
             }
         }
 
@@ -174,6 +197,30 @@
         /// Gets the icon for the stop button.
         /// </summary>
         public Symbol StopButtonIcon => Symbol.Stop;
+
+        /// <summary>
+        /// Gets the description text for the start/pause button.
+        /// </summary>
+        public string StopButtonDescription => "Stop tracking";
+
+        /// <summary>
+        /// Gets a value indicating whether the stop button is enabled or not.
+        /// </summary>
+        public bool IsStopButtonEnabled
+        {
+            get
+            {
+                if (this.SelectedActivity != ActivityTypes.Unknown)
+                {
+                    if (this.status == TrackingStatus.Started)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// Gets the command to handle start/pause button clicked event.
@@ -264,6 +311,11 @@
 
                 // Step 2, request extended session.
                 await this.StartExtendedExecution();
+
+                this.status = TrackingStatus.Started;
+                this.OnPropertyChanged(nameof(this.IsStartPauseButtonEnabled));
+                this.OnPropertyChanged(nameof(this.IsStopButtonEnabled));
+                this.OnPropertyChanged(nameof(this.IsActivityOptionEnabled));
             }
         }
 
@@ -274,7 +326,6 @@
         /// <returns>True if the click is allowed.</returns>
         private bool CanStartPauseClick(ItemClickEventArgs argument)
         {
-            // return this.SelectedActivity == null ? false : true;
             return true;
         }
 
@@ -293,6 +344,11 @@
 
             int wayPointNumber = await this.gpxHandler.ComposeGpxFile(this.trackingId, this.SelectedActivity.ToString());
 
+            this.status = TrackingStatus.Stopped;
+            this.OnPropertyChanged(nameof(this.IsStartPauseButtonEnabled));
+            this.OnPropertyChanged(nameof(this.IsStopButtonEnabled));
+            this.OnPropertyChanged(nameof(this.IsActivityOptionEnabled));
+
             await this.DisplayMostRecentLocationData($"Gpx file created with {wayPointNumber} points collected.");
         }
 
@@ -303,7 +359,6 @@
         /// <returns>True if the click is allowed.</returns>
         private bool CanStopClick(ItemClickEventArgs argument)
         {
-            // return this.SelectedActivity == null ? false : true;
             return true;
         }
 

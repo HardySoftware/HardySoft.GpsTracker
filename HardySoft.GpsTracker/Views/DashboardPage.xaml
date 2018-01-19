@@ -28,6 +28,7 @@
                    RelativePanel.Below="PageTitle"
                    Style="{StaticResource CaptionTitle}">Activity</TextBlock>
         <ComboBox x:Name="ActivityOptions"
+                  IsEnabled="{Binding Path=IsActivityOptionEnabled, UpdateSourceTrigger=PropertyChanged}"
                   Margin="10,0,0,0"
                   HorizontalAlignment="Stretch"
                   RelativePanel.RightOf="ActivityLabel"
@@ -48,6 +49,7 @@
                     RelativePanel.AlignRightWithPanel="True">
             <RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Button x:Name="StartPauseButton"
+                        IsEnabled="{Binding Path=IsStartPauseButtonEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         RelativePanel.AlignVerticalCenterWithPanel="True"
                         Command="{Binding Path=StartPauseClickedCommand}">
                     <Viewbox Width="100" Height="100">
@@ -56,6 +58,7 @@
                 </Button>
                 <Border x:Name="Separator" Width="10" RelativePanel.RightOf="StartPauseButton"></Border>
                 <Button x:Name="StopButton"
+                        IsEnabled="{Binding Path=IsStopButtonEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         RelativePanel.RightOf="Separator"
                         RelativePanel.AlignVerticalCenterWithPanel="True"
                         Command="{Binding Path=StopClickedCommand}">
@@ -71,7 +74,8 @@
                 <TextBlock x:Name="StopButtonDescription"
                            RelativePanel.Below="StopButton"
                            RelativePanel.AlignHorizontalCenterWith="StopButton"
-                           Style="{StaticResource ButtonDescription}">Stop</TextBlock>
+                           Style="{StaticResource ButtonDescription}"
+                           Text="{Binding Path=StopButtonDescription}"></TextBlock>
             </RelativePanel>
         </StackPanel>
         <TextBlock x:Name="CurrentLocation"
