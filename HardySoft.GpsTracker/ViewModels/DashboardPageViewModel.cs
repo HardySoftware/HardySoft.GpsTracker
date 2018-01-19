@@ -103,6 +103,7 @@
 
             this.refreshTimer.Tick += async (object sender, object e) => { await this.DisplayMostRecentLocationData(string.Empty); };
 
+            Debug.WriteLine($"{DateTime.Now} - Attached LocationTracker_OnTrackingProgressChangedEvent event handler.");
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
         }
 
@@ -420,6 +421,7 @@
             string message;
             if (statusUpdate.Coordinate != null)
             {
+                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed.");
                 message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
                 await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "E");
             }

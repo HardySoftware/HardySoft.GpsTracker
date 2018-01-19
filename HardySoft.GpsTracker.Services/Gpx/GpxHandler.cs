@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -99,6 +100,7 @@
             var workingFolder = await GetFolder(WorkingFolderName);
 
             var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
+            Debug.WriteLine($"{DateTime.Now} - Creating way-point section file {sectionFileName}");
             var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
             await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(waypointFile, waypointSection));

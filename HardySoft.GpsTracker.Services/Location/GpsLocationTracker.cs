@@ -53,8 +53,6 @@
                     this.statusUpdate.Coordinate = firstPosition.Coordinate;
                     break;
             }
-
-            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);
         }
 
         /// <inheritdoc />
@@ -103,8 +101,10 @@
         /// <param name="e">The event argument.</param>
         private void OnStatusChanged(Geolocator sender, StatusChangedEventArgs e)
         {
-            this.statusUpdate.PositionStatus = e.Status;
-            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);
+            /*this.statusUpdate.PositionStatus = e.Status;
+            this.statusUpdate.Coordinate = null;
+            this.OnTrackingProgressChangedEvent(this, this.statusUpdate);*/
+            return;
         }
     }
 }
