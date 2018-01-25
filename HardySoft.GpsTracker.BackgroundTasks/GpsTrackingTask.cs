@@ -1,11 +1,7 @@
 ﻿namespace HardySoft.GpsTracker.BackgroundTasks
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using HardySoft.GpsTracker.Services.Gpx;
     using HardySoft.GpsTracker.Services.LocalSetting;
     using HardySoft.GpsTracker.Services.Location;

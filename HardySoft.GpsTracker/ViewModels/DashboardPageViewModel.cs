@@ -15,7 +15,6 @@
     using HardySoft.GpsTracker.Services.Location;
     using Microsoft.HockeyApp;
     using Prism.Commands;
-    using Prism.Windows.AppModel;
     using Prism.Windows.Mvvm;
     using Prism.Windows.Navigation;
     using Windows.ApplicationModel.Background;
@@ -115,7 +114,6 @@
         /// <summary>
         /// Gets or sets the selected activity.
         /// </summary>
-        [RestorableState]
         public ActivityTypes SelectedActivity
         {
             get
@@ -236,7 +234,6 @@
         /// <summary>
         /// Gets the text information of the coordinate from location tracking service.
         /// </summary>
-        [RestorableState]
         public string CoordinateInformation
         {
             get
@@ -310,13 +307,13 @@
                     await this.DisplayMostRecentLocationData("In progress.");
                 }
 
-                // Step 2, request extended session.
-                await this.StartExtendedExecution();
-
                 this.status = TrackingStatus.Started;
                 this.OnPropertyChanged(nameof(this.IsStartPauseButtonEnabled));
                 this.OnPropertyChanged(nameof(this.IsStopButtonEnabled));
                 this.OnPropertyChanged(nameof(this.IsActivityOptionEnabled));
+
+                // Step 2, request extended session.
+                await this.StartExtendedExecution();
             }
         }
 

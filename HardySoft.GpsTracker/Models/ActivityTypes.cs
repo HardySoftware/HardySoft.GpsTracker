@@ -1,10 +1,12 @@
 ﻿namespace HardySoft.GpsTracker.Models
 {
+    using System;
     using System.ComponentModel;
 
     /// <summary>
     /// An enumeration for all possible activity types supported by the app.
     /// </summary>
+    [Serializable]
     public enum ActivityTypes
     {
         /// <summary>

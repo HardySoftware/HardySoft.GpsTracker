@@ -1,0 +1,14 @@
+﻿<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <!--
+    <Assembly 
+      Name="HardySoft.GpsTracker" 
+      Serialize="Required Public"
+      Browse="All" 
+      Activate="PublicAndInternal"
+      Dynamic="Public"
+      DataContractSerializer="Required All" />
+      -->
+    <Namespace Name="HardySoft.GpsTracker.Models" XmlSerializer="Required All" />
+  </Application>
+</Directives>
