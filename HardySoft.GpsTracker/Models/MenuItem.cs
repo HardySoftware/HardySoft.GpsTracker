@@ -10,19 +10,60 @@
     public class MenuItem
     {
         /// <summary>
-        /// Gets or sets the icon of one menu item.
+        /// Initializes a new instance of the <see cref="MenuItem"/> class to use symbol text for icon of the menu item.
         /// </summary>
-        public Symbol Icon { get; set; }
+        /// <param name="icon">The symbol character for the icon.</param>
+        /// <param name="name">The name of the page.</param>
+        /// <param name="pageType">The type of the page.</param>
+        public MenuItem(Symbol icon, string name, Type pageType)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            this.Icon = icon;
+            this.Name = name;
+            this.PageType = pageType ?? throw new ArgumentNullException(nameof(pageType));
+        }
 
         /// <summary>
-        /// Gets or sets the name of one menu item.
+        /// Initializes a new instance of the <see cref="MenuItem"/> class to use image for icon of the menu item.
         /// </summary>
-        public string Name { get; set; }
+        /// <param name="iconUri">The URI of the image for the icon.</param>
+        /// <param name="name">The name of the page.</param>
+        /// <param name="pageType">The type of the page.</param>
+        public MenuItem(Uri iconUri, string name, Type pageType)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            this.ImageIconUri = iconUri ?? throw new ArgumentNullException(nameof(iconUri));
+            this.Name = name;
+            this.PageType = pageType ?? throw new ArgumentNullException(nameof(pageType));
+        }
 
         /// <summary>
-        /// Gets or sets the type of the page to go when the menu is clicked.
+        /// Gets the icon of one menu item.
         /// </summary>
-        public Type PageType { get; set; }
+        public Symbol Icon { get; private set; }
+
+        /// <summary>
+        /// Gets the image icon URI of the menu item.
+        /// </summary>
+        public Uri ImageIconUri { get; private set; }
+
+        /// <summary>
+        /// Gets the name of one menu item.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the type of the page to go when the menu is clicked.
+        /// </summary>
+        public Type PageType { get; private set; }
 
         /// <summary>
         /// Get main menu items.
@@ -32,8 +73,10 @@
         {
             var items = new List<MenuItem>();
 
-            items.Add(new MenuItem() { Icon = Symbol.Map, Name = "Start tracking", PageType = typeof(Views.DashboardPage) });
-            items.Add(new MenuItem() { Icon = Symbol.BrowsePhotos, Name = "View tracking history", PageType = typeof(Views.BlankPage) });
+            items.Add(new MenuItem(new Uri("ms-appx:///Assets/dotted-line-path.png"), "Start tracking", typeof(Views.DashboardPage)));
+            items.Add(new MenuItem(Symbol.Map, "View my current location", typeof(Views.DashboardPage)));
+            items.Add(new MenuItem(Symbol.BrowsePhotos, "View tracking history", typeof(Views.BlankPage)));
+
             return items;
         }
 
@@ -44,7 +87,7 @@
         public static List<MenuItem> GetOptionsItems()
         {
             var items = new List<MenuItem>();
-            items.Add(new MenuItem() { Icon = Symbol.Setting, Name = "Settings", PageType = typeof(Views.SettingPage) });
+            items.Add(new MenuItem(Symbol.Setting, "Settings", typeof(Views.SettingPage)));
             return items;
         }
     }

@@ -24,6 +24,7 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <SymbolIcon Grid.Column="0" Symbol="{x:Bind Icon, Mode=OneWay}" Foreground="White" />
+                    <BitmapIcon Grid.Column="0" UriSource="{x:Bind ImageIconUri, Mode=OneWay}" MaxWidth="16" MaxHeight="16" Foreground="White" />
                     <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" FontSize="16" VerticalAlignment="Center" Foreground="White" />
                 </Grid>
             </DataTemplate>
