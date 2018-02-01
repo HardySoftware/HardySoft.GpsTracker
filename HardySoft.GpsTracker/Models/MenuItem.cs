@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -24,7 +25,7 @@
 
             this.Icon = icon;
             this.Name = name;
-            this.PageType = pageType ?? throw new ArgumentNullException(nameof(pageType));
+            this.SetPageType(pageType);
         }
 
         /// <summary>
@@ -42,7 +43,7 @@
 
             this.ImageIconUri = iconUri ?? throw new ArgumentNullException(nameof(iconUri));
             this.Name = name;
-            this.PageType = pageType ?? throw new ArgumentNullException(nameof(pageType));
+            this.SetPageType(pageType);
         }
 
         /// <summary>
@@ -89,6 +90,22 @@
             var items = new List<MenuItem>();
             items.Add(new MenuItem(Symbol.Setting, "Settings", typeof(Views.SettingPage)));
             return items;
+        }
+
+        /// <summary>
+        /// Sets the page type in this class.
+        /// </summary>
+        /// <param name="pageType">The page type to check and set.</param>
+        /// <exception cref="T:System.ArgumentNullException">Type is null.</exception>
+        /// <exception cref="T:System.InvalidOperationException">Type is not a sub type of <see cref="Windows.UI.Xaml.Controls.Page"/>.</exception>
+        private void SetPageType(Type pageType)
+        {
+            this.PageType = pageType ?? throw new ArgumentNullException(nameof(pageType));
+
+            if (!pageType.GetTypeInfo().IsSubclassOf(typeof(Page)))
+            {
+                throw new InvalidOperationException("Only sub type of Page can be used for page type.");
+            }
         }
     }
 }
