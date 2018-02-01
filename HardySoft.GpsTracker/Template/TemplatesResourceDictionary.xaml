@@ -34,8 +34,17 @@
         <Setter Property="TextAlignment" Value="Left"></Setter>
         <Setter Property="TextWrapping" Value="Wrap"></Setter>
         <Setter Property="FontSize" Value="12"></Setter>
-        <Setter Property="FontWeight" Value="Normal"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
         <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+    </Style>
+
+    <Style x:Key="InfoTextTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{ThemeResource SystemColorHighlightColor}"></Setter>
+        <Setter Property="TextAlignment" Value="Left"></Setter>
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        <Setter Property="FontSize" Value="11"></Setter>
+        <Setter Property="FontWeight" Value="Normal"></Setter>
+        <Setter Property="FontFamily" Value="Georgia"></Setter>
     </Style>
 
     <Style x:Key="ButtonDescription" TargetType="TextBlock">

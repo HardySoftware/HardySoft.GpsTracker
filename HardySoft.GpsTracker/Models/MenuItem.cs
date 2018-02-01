@@ -75,7 +75,7 @@
             var items = new List<MenuItem>();
 
             items.Add(new MenuItem(new Uri("ms-appx:///Assets/dotted-line-path.png"), "Start tracking", typeof(Views.DashboardPage)));
-            items.Add(new MenuItem(Symbol.Map, "View my current location", typeof(Views.DashboardPage)));
+            items.Add(new MenuItem(Symbol.Map, "View my current location", typeof(Views.CurrentLocationPage)));
             items.Add(new MenuItem(Symbol.BrowsePhotos, "View tracking history", typeof(Views.BlankPage)));
 
             return items;

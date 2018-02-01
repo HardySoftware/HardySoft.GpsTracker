@@ -1,0 +1,77 @@
+﻿<prism:SessionStateAwarePage
+    x:Class="HardySoft.GpsTracker.Views.CurrentLocationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardySoft.GpsTracker.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:localTemplate="using:HardySoft.GpsTracker.Template"
+    xmlns:prism="using:Prism.Windows.Mvvm"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <localTemplate:TemplatesResourceDictionary/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10,0,0,0">
+        <TextBlock x:Name="PageTitle"
+                   Margin="0,0,0,20"
+                   RelativePanel.AlignTopWithPanel="True"
+                   Style="{StaticResource WindowTitle}">Current location</TextBlock>
+        <TextBlock x:Name="LatitudeLabel"
+                   RelativePanel.Below="PageTitle"
+                   Style="{StaticResource CaptionTitle}">Latitude</TextBlock>
+        <TextBlock x:Name="LatitudeValueLabel"
+                   RelativePanel.Below="LatitudeLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=LatitudeDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="LongitudeLabel"
+                   RelativePanel.Below="LatitudeValueLabel"
+                   Style="{StaticResource CaptionTitle}">Longitude</TextBlock>
+        <TextBlock x:Name="LongitudeValueLabel"
+                   RelativePanel.Below="LongitudeLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=LongitudeDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="AccuracyLabel"
+                   RelativePanel.Below="LongitudeValueLabel"
+                   Style="{StaticResource CaptionTitle}">Accuracy</TextBlock>
+        <TextBlock x:Name="AccuracyValueLabel"
+                   RelativePanel.Below="AccuracyLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=AccuracyDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="AltitudeLabel"
+                   RelativePanel.Below="AccuracyValueLabel"
+                   Style="{StaticResource CaptionTitle}">Altitude</TextBlock>
+        <TextBlock x:Name="AltitudeValueLabel"
+                   RelativePanel.Below="AltitudeLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=AltitudeDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="AltitudeAccuracyLabel"
+                   RelativePanel.Below="AltitudeValueLabel"
+                   Style="{StaticResource CaptionTitle}">Altitude Accuracy</TextBlock>
+        <TextBlock x:Name="AltitudeAccuracyValueLabel"
+                   RelativePanel.Below="AltitudeAccuracyLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=AltitudeAccuracyDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="HeadingLabel"
+                   RelativePanel.Below="AltitudeAccuracyValueLabel"
+                   Style="{StaticResource CaptionTitle}">Heading</TextBlock>
+        <TextBlock x:Name="HeadingValueLabel"
+                   RelativePanel.Below="HeadingLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=HeadingDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="SpeedLabel"
+                   RelativePanel.Below="HeadingValueLabel"
+                   Style="{StaticResource CaptionTitle}">Speed</TextBlock>
+        <TextBlock x:Name="SpeedValueLabel"
+                   RelativePanel.Below="SpeedLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=SpeedDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+    </RelativePanel>
+</prism:SessionStateAwarePage>

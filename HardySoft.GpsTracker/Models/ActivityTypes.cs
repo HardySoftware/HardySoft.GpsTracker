@@ -13,7 +13,7 @@
         /// Unknown activity type.
         /// </summary>
         [Description("-")]
-        Unknown,
+        Unknown = 0,
 
         /// <summary>
         /// Hiking activity.
