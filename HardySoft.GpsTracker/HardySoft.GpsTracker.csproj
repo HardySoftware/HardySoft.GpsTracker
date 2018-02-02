@@ -101,6 +101,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Direction.cs" />
+    <Compile Include="Models\DmsPoint.cs" />
+    <Compile Include="Models\LocationPointValueType.cs" />
     <Compile Include="Support\Converters\SelectedActivityTypeToIndexConverter.cs" />
     <Compile Include="Support\Extensions\EnumExtension.cs" />
     <Compile Include="Support\Extensions\PageTokenExtension.cs" />
