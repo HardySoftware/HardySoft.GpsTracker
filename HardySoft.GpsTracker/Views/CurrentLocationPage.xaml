@@ -24,8 +24,15 @@
                    Margin="0,0,0,20"
                    RelativePanel.AlignTopWithPanel="True"
                    Style="{StaticResource WindowTitle}">Current location</TextBlock>
-        <TextBlock x:Name="LatitudeLabel"
+        <TextBlock x:Name="PositionSourceLabel"
                    RelativePanel.Below="PageTitle"
+                   Style="{StaticResource CaptionTitle}">Position Source</TextBlock>
+        <TextBlock x:Name="PositionSourceValueLabel"
+                   RelativePanel.Below="PositionSourceLabel"
+                   Style="{StaticResource InfoTextTitle}"
+                   Text="{Binding Path=PositionSourceDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock x:Name="LatitudeLabel"
+                   RelativePanel.Below="PositionSourceValueLabel"
                    Style="{StaticResource CaptionTitle}">Latitude</TextBlock>
         <TextBlock x:Name="LatitudeValueLabel"
                    RelativePanel.Below="LatitudeLabel"
@@ -73,5 +80,10 @@
                    RelativePanel.Below="SpeedLabel"
                    Style="{StaticResource InfoTextTitle}"
                    Text="{Binding Path=SpeedDisplayValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <Button x:Name="StartToGetInfoButton"
+                RelativePanel.Below="SpeedValueLabel"
+                RelativePanel.AlignHorizontalCenterWithPanel="True"
+                HorizontalAlignment="Center"
+                Command="{Binding Path=StartButtonClickedCommand}">Get GPS Information</Button>
     </RelativePanel>
 </prism:SessionStateAwarePage>

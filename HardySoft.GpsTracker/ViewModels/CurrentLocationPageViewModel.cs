@@ -9,7 +9,9 @@
     using HardySoft.GpsTracker.Services.Location;
     using Prism.Commands;
     using Prism.Windows.Mvvm;
+    using Windows.ApplicationModel.Core;
     using Windows.Devices.Geolocation;
+    using Windows.UI.Core;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -18,9 +20,19 @@
     public class CurrentLocationPageViewModel : ViewModelBase
     {
         /// <summary>
+        /// A symbol to represent unknown value.
+        /// </summary>
+        private const string UnknownValue = "-";
+
+        /// <summary>
         /// A location tracker implementation.
         /// </summary>
         private readonly ILocationTracker locationTracker;
+
+        /// <summary>
+        /// The position source display value
+        /// </summary>
+        private string positionSourceDisplayValue;
 
         /// <summary>
         /// The latitude display value
@@ -65,16 +77,33 @@
         {
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));
 
-            this.LatitudeDisplayValue = "-";
-            this.LongitudeDisplayValue = "-";
-            this.AccuracyDisplayValue = "-";
-            this.AltitudeDisplayValue = "-";
-            this.AltitudeAccuracyDisplayValue = "-";
-            this.HeadingDisplayValue = "-";
-            this.SpeedDisplayValue = "-";
+            this.PositionSourceDisplayValue = UnknownValue;
+            this.LatitudeDisplayValue = UnknownValue;
+            this.LongitudeDisplayValue = UnknownValue;
+            this.AccuracyDisplayValue = UnknownValue;
+            this.AltitudeDisplayValue = UnknownValue;
+            this.AltitudeAccuracyDisplayValue = UnknownValue;
+            this.HeadingDisplayValue = UnknownValue;
+            this.SpeedDisplayValue = UnknownValue;
 
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
             this.StartButtonClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartClicked, this.CanStartClick);
+        }
+
+        /// <summary>
+        /// Gets the position source display value.
+        /// </summary>
+        public string PositionSourceDisplayValue
+        {
+            get
+            {
+                return this.positionSourceDisplayValue;
+            }
+
+            private set
+            {
+                this.SetProperty(ref this.positionSourceDisplayValue, value);
+            }
         }
 
         /// <summary>
@@ -195,6 +224,68 @@
         public ICommand StartButtonClickedCommand { get; private set; }
 
         /// <summary>
+        /// Gets latitude or longitude decimal and degree display values.
+        /// </summary>
+        /// <param name="value">The latitude or longitude value in decimal.</param>
+        /// <param name="type">The type of the decimal value.</param>
+        /// <returns>A string representing the latitude's decimal and degree values combined.</returns>
+        private static string GetLatitudeLongitudeDisplayValue(double? value, LocationPointValueType type)
+        {
+            if (value.HasValue && !double.IsNaN(value.Value))
+            {
+                string display = value.Value.ToString();
+                var dms = new DmsPoint(value.Value, type);
+                return $"{value} / {dms.Degree}°{dms.Minute}'{dms.Second}'' {dms.Direction}";
+            }
+            else
+            {
+                return UnknownValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets the display value in both meter and feet units.
+        /// </summary>
+        /// <param name="value">The value in meter.</param>
+        /// <param name="unitSuffix">Additional suffix to the unit.</param>
+        /// <returns>The formatted display value with both meter and feet.</returns>
+        private static string GetDisplayValueForMeterFeet(double? value, string unitSuffix)
+        {
+            if (value.HasValue && !double.IsNaN(value.Value))
+            {
+                var display = $"{value:0,0.00} m{unitSuffix}";
+                display += " / ";
+                display += $"{value / 3.2808399:0,0.00} ft{unitSuffix}";
+
+                return display;
+            }
+            else
+            {
+                return UnknownValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets cardinal direction display value.
+        /// </summary>
+        /// <param name="degrees">Degrees relative to true north.</param>
+        /// <returns>The formatted display value.</returns>
+        private static string GetCardinalDirection(double? degrees)
+        {
+            if (degrees.HasValue && !double.IsNaN(degrees.Value))
+            {
+                string[] caridnals = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N" };
+                var cardinal = caridnals[(int)Math.Round(((degrees.Value * 10) % 3600) / 225)];
+
+                return $"{cardinal} ({degrees.Value})";
+            }
+            else
+            {
+                return UnknownValue;
+            }
+        }
+
+        /// <summary>
         /// Handle start/pause button clicked event.
         /// </summary>
         /// <param name="argument">The event argument.</param>
@@ -231,28 +322,23 @@
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="statusUpdate">The event argument with detailed data.</param>
-        private void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
+        private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
         {
             if (statusUpdate.Coordinate != null)
             {
                 Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed.");
-
-                this.LatitudeDisplayValue = this.GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Latitude, LocationPointValueType.Latitude);
-                this.LongitudeDisplayValue = this.GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Longitude, LocationPointValueType.Longitude);
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    this.PositionSourceDisplayValue = statusUpdate.Coordinate.PositionSource == PositionSource.Unknown ? UnknownValue : statusUpdate.Coordinate.PositionSource.ToString();
+                    this.LatitudeDisplayValue = GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Latitude, LocationPointValueType.Latitude);
+                    this.LongitudeDisplayValue = GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Longitude, LocationPointValueType.Longitude);
+                    this.AccuracyDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Accuracy, string.Empty);
+                    this.AltitudeDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Altitude, string.Empty);
+                    this.AltitudeAccuracyDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.AltitudeAccuracy, string.Empty);
+                    this.HeadingDisplayValue = GetCardinalDirection(statusUpdate.Coordinate.Heading);
+                    this.SpeedDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Speed, "/s");
+                });
             }
-        }
-
-        /// <summary>
-        /// Get latitude or longitude decimal and degree display values.
-        /// </summary>
-        /// <param name="value">The latitude or longitude value in decimal.</param>
-        /// <param name="type">The type of the decimal value.</param>
-        /// <returns>A string representing the latitude's decimal and degree values combined.</returns>
-        private string GetLatitudeLongitudeDisplayValue(double value, LocationPointValueType type)
-        {
-            string display = value.ToString();
-            var dms = new DmsPoint(value, LocationPointValueType.Latitude);
-            return $"{value} / {dms.Degree}°{dms.Minute}'{dms.Second}'' {dms.Direction}";
         }
     }
 }
