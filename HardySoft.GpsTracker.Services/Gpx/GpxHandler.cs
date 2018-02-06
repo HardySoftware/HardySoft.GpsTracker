@@ -75,6 +75,7 @@
                 retryCount => TimeSpan.FromSeconds(retryCount),
                 (exception, timespan) =>
                 {
+                    Debug.WriteLine($"{DateTime.Now} - waypointFileRetryPolicy retry. {exception.Message}");
                     HockeyClient.Current.TrackException(exception, new Dictionary<string, string>() { { "Polly Exception Retry", string.Empty } });
                 });
         }

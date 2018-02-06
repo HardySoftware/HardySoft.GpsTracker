@@ -58,6 +58,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\ARM\Debug\HardySoft.GpsTracker.XML</DocumentationFile>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <OutputPath>bin\ARM\Release\</OutputPath>

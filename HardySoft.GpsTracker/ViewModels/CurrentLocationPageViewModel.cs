@@ -86,7 +86,6 @@
             this.HeadingDisplayValue = UnknownValue;
             this.SpeedDisplayValue = UnknownValue;
 
-            this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
             this.StartButtonClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartClicked, this.CanStartClick);
         }
 
@@ -286,6 +285,23 @@
         }
 
         /// <summary>
+        /// Gets satellite data information.
+        /// </summary>
+        /// <param name="satelliteData">The satellite data.</param>
+        /// <returns>The formatted display value.</returns>
+        private static string GetSatelliteDataDisplayValue(GeocoordinateSatelliteData satelliteData)
+        {
+            if (satelliteData != null)
+            {
+                return UnknownValue;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Handle start/pause button clicked event.
         /// </summary>
         /// <param name="argument">The event argument.</param>
@@ -313,32 +329,35 @@
             var locationAccessStatus = await Geolocator.RequestAccessAsync();
             if (locationAccessStatus == GeolocationAccessStatus.Allowed)
             {
-                await this.locationTracker.StartTracking(20, 10);
+                for (int i = 0; i < 5; i++)
+                {
+                    Debug.WriteLine($"{DateTime.Now} - trying to get current location from current location view model.");
+                    var locationData = await this.locationTracker.GetCurrentLocation(7);
+                    await this.UpdateLocationInformation(locationData);
+                    await Task.Delay(5000);
+                }
             }
         }
 
         /// <summary>
-        /// An event handler to handle GPS track changed event.
+        /// Update location data for UI displaying.
         /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="statusUpdate">The event argument with detailed data.</param>
-        private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
+        /// <param name="coordinate">The coordinate data.</param>
+        /// <returns>The asynchronous task.</returns>
+        private async Task UpdateLocationInformation(Geocoordinate coordinate)
         {
-            if (statusUpdate.Coordinate != null)
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed.");
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    this.PositionSourceDisplayValue = statusUpdate.Coordinate.PositionSource == PositionSource.Unknown ? UnknownValue : statusUpdate.Coordinate.PositionSource.ToString();
-                    this.LatitudeDisplayValue = GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Latitude, LocationPointValueType.Latitude);
-                    this.LongitudeDisplayValue = GetLatitudeLongitudeDisplayValue(statusUpdate.Coordinate.Longitude, LocationPointValueType.Longitude);
-                    this.AccuracyDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Accuracy, string.Empty);
-                    this.AltitudeDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Altitude, string.Empty);
-                    this.AltitudeAccuracyDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.AltitudeAccuracy, string.Empty);
-                    this.HeadingDisplayValue = GetCardinalDirection(statusUpdate.Coordinate.Heading);
-                    this.SpeedDisplayValue = GetDisplayValueForMeterFeet(statusUpdate.Coordinate.Speed, "/s");
-                });
-            }
+                this.PositionSourceDisplayValue = coordinate.PositionSource == PositionSource.Unknown ? UnknownValue : coordinate.PositionSource.ToString();
+                this.LatitudeDisplayValue = GetLatitudeLongitudeDisplayValue(coordinate.Latitude, LocationPointValueType.Latitude);
+                this.LongitudeDisplayValue = GetLatitudeLongitudeDisplayValue(coordinate.Longitude, LocationPointValueType.Longitude);
+                this.AccuracyDisplayValue = GetDisplayValueForMeterFeet(coordinate.Accuracy, string.Empty);
+                this.AltitudeDisplayValue = GetDisplayValueForMeterFeet(coordinate.Altitude, string.Empty);
+                this.AltitudeAccuracyDisplayValue = GetDisplayValueForMeterFeet(coordinate.AltitudeAccuracy, string.Empty);
+                this.HeadingDisplayValue = GetCardinalDirection(coordinate.Heading);
+                this.SpeedDisplayValue = GetDisplayValueForMeterFeet(coordinate.Speed, "/s");
+                GetSatelliteDataDisplayValue(coordinate.SatelliteData);
+            });
         }
     }
 }

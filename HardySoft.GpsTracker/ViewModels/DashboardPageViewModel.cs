@@ -418,7 +418,7 @@
             string message;
             if (statusUpdate.Coordinate != null)
             {
-                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed.");
+                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed in tracking view model.");
                 message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
                 await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "source E");
             }
