@@ -19,6 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>HardySoft.GpsTracker_TemporaryKey.pfx</PackageCertificateKeyFile>
     <CodeAnalysisRuleSet>..\GlobalRuleSet.ruleset</CodeAnalysisRuleSet>
+    <HockeyAppResourceId>b43a48c928604536967ce7f9bb36a637</HockeyAppResourceId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -138,6 +139,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Connected Services\HockeyApp\ConnectedService.json" />
     <None Include="HardySoft.GpsTracker_TemporaryKey.pfx" />
     <None Include="stylecop.json" />
   </ItemGroup>
@@ -218,6 +220,9 @@
       <Project>{43cee2c4-79c0-49e8-a3fa-be828c8c8a97}</Project>
       <Name>HardySoft.GpsTracker.Services</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
