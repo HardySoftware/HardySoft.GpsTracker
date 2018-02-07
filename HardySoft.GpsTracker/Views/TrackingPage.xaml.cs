@@ -5,12 +5,12 @@
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class DashboardPage : SessionStateAwarePage
+    public sealed partial class TrackingPage : SessionStateAwarePage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DashboardPage"/> class.
+        /// Initializes a new instance of the <see cref="TrackingPage"/> class.
         /// </summary>
-        public DashboardPage()
+        public TrackingPage()
         {
             this.InitializeComponent();
         }

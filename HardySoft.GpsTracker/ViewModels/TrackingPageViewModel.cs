@@ -28,7 +28,7 @@
     /// <summary>
     /// A view model for dashboard page.
     /// </summary>
-    public class DashboardPageViewModel : ViewModelBase
+    public class TrackingPageViewModel : ViewModelBase
     {
         /// <summary>
         /// The background task name.
@@ -76,12 +76,12 @@
         private string trackingId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DashboardPageViewModel"/> class.
+        /// Initializes a new instance of the <see cref="TrackingPageViewModel"/> class.
         /// </summary>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
         /// <param name="locationTracker">The location tracker implementation it depends on.</param>
         /// <param name="settingOperator">The setting operator implementation it depends on.</param>
-        public DashboardPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker, ISettingOperator settingOperator)
+        public TrackingPageViewModel(IGpxHandler gpxHandler, ILocationTracker locationTracker, ISettingOperator settingOperator)
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
             this.locationTracker = locationTracker ?? throw new ArgumentNullException(nameof(locationTracker));

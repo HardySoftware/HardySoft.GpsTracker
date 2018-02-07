@@ -66,7 +66,7 @@
             this.Container.RegisterInstance<ISessionStateService>(this.SessionStateService);
 
             // navigate to the default page of the application on start-up.
-            this.NavigationService.Navigate(typeof(DashboardPage).GetPageToken(), null);
+            this.NavigationService.Navigate(typeof(TrackingPage).GetPageToken(), null);
 
             // Set a factory for the ViewModelLocator to use the container to construct view models so their
             // dependencies get injected by the container

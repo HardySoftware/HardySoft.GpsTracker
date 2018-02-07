@@ -1,5 +1,5 @@
 ﻿<prism:SessionStateAwarePage
-    x:Class="HardySoft.GpsTracker.Views.DashboardPage"
+    x:Class="HardySoft.GpsTracker.Views.TrackingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:HardySoft.GpsTracker.Views"
