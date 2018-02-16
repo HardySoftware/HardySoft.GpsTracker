@@ -125,6 +125,7 @@
     <Compile Include="Views\CurrentLocationPage.xaml.cs">
       <DependentUpon>CurrentLocationPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\TrackingMechanism.cs" />
     <Compile Include="Views\TrackingPage.xaml.cs">
       <DependentUpon>TrackingPage.xaml</DependentUpon>
     </Compile>

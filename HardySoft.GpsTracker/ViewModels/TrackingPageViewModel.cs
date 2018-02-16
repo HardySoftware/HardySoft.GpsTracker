@@ -71,9 +71,19 @@
         private DispatcherTimer refreshTimer;
 
         /// <summary>
+        /// A timer used to control the interval to fetch location information.
+        /// </summary>
+        private DispatcherTimer locationFechingTimer;
+
+        /// <summary>
         /// A unique identifier of each individual tracking.
         /// </summary>
         private string trackingId;
+
+        /// <summary>
+        /// An indicator to tell the application what tracking mechanism to use.
+        /// </summary>
+        private TrackingMechanism trackingMechanism;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TrackingPageViewModel"/> class.
@@ -104,6 +114,11 @@
 
             Debug.WriteLine($"{DateTime.Now} - Attached LocationTracker_OnTrackingProgressChangedEvent event handler.");
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
+
+            this.trackingMechanism = TrackingMechanism.LocationFetchingTimer;
+
+            this.locationFechingTimer = new DispatcherTimer();
+            this.locationFechingTimer.Tick += this.LocationFechingTimer_Tick;
         }
 
         /// <summary>
@@ -335,8 +350,15 @@
         {
             this.settingOperator.ResetSettings();
             Window.Current.VisibilityChanged -= this.VisibilityChanged;
-            this.locationTracker.OnTrackingProgressChangedEvent -= this.LocationTracker_OnTrackingProgressChangedEvent;
-            this.locationTracker.StopTracking();
+
+            if (this.trackingMechanism == TrackingMechanism.LocationServiceProgrssChangedEvent)
+            {
+                this.StopLocationUpdateTracking();
+            }
+            else if (this.trackingMechanism == TrackingMechanism.LocationFetchingTimer)
+            {
+                this.StopLocationIntervalTracking();
+            }
 
             this.FindAndCancelExistingBackgroundTask();
 
@@ -375,8 +397,15 @@
             switch (extendedSessionResult)
             {
                 case ExtendedExecutionResult.Allowed:
-                    var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
-                    await this.locationTracker.StartTracking(activityDetail.DesiredAccuracy, activityDetail.TrackingInterval);
+                    if (this.trackingMechanism == TrackingMechanism.LocationServiceProgrssChangedEvent)
+                    {
+                        await this.StartLocationUpdateTracking();
+                    }
+                    else if (this.trackingMechanism == TrackingMechanism.LocationFetchingTimer)
+                    {
+                        this.StartLocationIntervalTracking();
+                    }
+
                     break;
                 default:
                     await this.DisplayMostRecentLocationData("Your decision makes it unable to track GPS locations frequently. You can only get one location reading every 15 minutes.");
@@ -385,19 +414,13 @@
         }
 
         /// <summary>
-        /// Handles event when an extended execution session is revoked.
+        /// Starts the location tracking by using location service's progress changed event.
         /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event argument.</param>
-        private async void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        /// <returns>The asynchronous task.</returns>
+        private async Task StartLocationUpdateTracking()
         {
-            switch (args.Reason)
-            {
-                case ExtendedExecutionRevokedReason.Resumed:
-                    // The app returns to the foreground.
-                    await this.StartExtendedExecution();
-                    break;
-            }
+            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+            await this.locationTracker.StartTracking(activityDetail.DesiredAccuracy, activityDetail.TrackingInterval);
         }
 
         /// <summary>
@@ -428,6 +451,73 @@
             }
 
             await this.DisplayMostRecentLocationData(message);
+        }
+
+        /// <summary>
+        /// Stops location tracking by removing location service's progress changed event.
+        /// </summary>
+        private void StopLocationUpdateTracking()
+        {
+            this.locationTracker.OnTrackingProgressChangedEvent -= this.LocationTracker_OnTrackingProgressChangedEvent;
+            this.locationTracker.StopTracking();
+        }
+
+        /// <summary>
+        /// Starts the location tracking by using system timer.
+        /// </summary>
+        private void StartLocationIntervalTracking()
+        {
+            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+
+            this.locationFechingTimer.Stop();
+            this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval);
+            this.locationFechingTimer.Start();
+
+            // Start immediately without waiting for the interval.
+            this.LocationFechingTimer_Tick(null, null);
+        }
+
+        /// <summary>
+        /// An event handler to handle location fetching timer ticks.
+        /// </summary>
+        /// <param name="sender">The sender of event.</param>
+        /// <param name="e">The event argument.</param>
+        private async void LocationFechingTimer_Tick(object sender, object e)
+        {
+            Debug.WriteLine($"{DateTime.Now} - Fetching location from timer.");
+            var sw = new Stopwatch();
+            sw.Start();
+
+            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+
+            var currentLocation = await this.locationTracker.GetCurrentLocation(activityDetail.DesiredAccuracy);
+
+            sw.Stop();
+            await this.gpxHandler.RecordLocationAsync(this.trackingId, currentLocation, $"source T({sw.ElapsedMilliseconds} ms)");
+        }
+
+        /// <summary>
+        /// Stops the location tracking by using system timer.
+        /// </summary>
+        private void StopLocationIntervalTracking()
+        {
+            this.locationFechingTimer.Stop();
+        }
+
+        /// <summary>
+        /// Handles event when an extended execution session is revoked.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="args">The event argument.</param>
+        private async void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        {
+            switch (args.Reason)
+            {
+                case ExtendedExecutionRevokedReason.Resumed:
+                    // The app returns to the foreground.
+                    await this.StartExtendedExecution();
+                    break;
+            }
         }
 
         /// <summary>
