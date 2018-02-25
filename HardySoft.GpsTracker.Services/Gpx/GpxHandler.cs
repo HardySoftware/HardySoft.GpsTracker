@@ -101,7 +101,7 @@
                 DateTime.Now.ToUniversalTime().ToString("o"),
                 coordinate.PositionSource,
                 coordinate.Accuracy,
-                comment);
+                comment) + "\r\n";
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
