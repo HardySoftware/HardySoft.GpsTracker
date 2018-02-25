@@ -13,6 +13,13 @@
         /// <summary>
         /// Tracks location by using timer to fetch current information.
         /// </summary>
-        LocationFetchingTimer
+        LocationFetchingTimer,
+
+        /// <summary>
+        /// Tracks location primarily by location service changed event,
+        /// but in case there is no such event the application uses
+        /// the timer to fetch the current location.
+        /// </summary>
+        Hybrid,
     }
 }
