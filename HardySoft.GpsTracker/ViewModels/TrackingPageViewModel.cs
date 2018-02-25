@@ -419,7 +419,7 @@
         /// <returns>The asynchronous task.</returns>
         private async Task StartLocationUpdateTracking()
         {
-            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+            var activityDetail = this.SupportedActivityTypes.First(x => x.ActivityType == this.SelectedActivity);
             await this.locationTracker.StartTracking(activityDetail.DesiredAccuracy, activityDetail.TrackingInterval);
         }
 
@@ -430,6 +430,7 @@
         /// <param name="statusUpdate">The event argument with detailed data.</param>
         private async void LocationTracker_OnTrackingProgressChangedEvent(object sender, LocationResponseEventArgs statusUpdate)
         {
+            // This mechanism is purely managed by OS, there are lots of time the app could not get any update for long time.
             var eventProperties = new Dictionary<string, string>()
                 {
                     { "Coordinate null", (statusUpdate.Coordinate == null).ToString() },
@@ -437,20 +438,8 @@
                 };
 
             HockeyClient.Current.TrackEvent("Location changed", eventProperties, null);
-
-            string message;
-            if (statusUpdate.Coordinate != null)
-            {
-                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed in tracking view model.");
-                message = statusUpdate.Coordinate.Point.Position.Latitude.ToString() + ", " + statusUpdate.Coordinate.Point.Position.Longitude.ToString();
-                await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "source E");
-            }
-            else
-            {
-                message = "Getting your location now, please be patient.";
-            }
-
-            await this.DisplayMostRecentLocationData(message);
+            await this.DisplayMostRecentLocationData(statusUpdate.Coordinate);
+            await this.gpxHandler.RecordLocationAsync(this.trackingId, statusUpdate.Coordinate, "source E");
         }
 
         /// <summary>
@@ -467,7 +456,7 @@
         /// </summary>
         private void StartLocationIntervalTracking()
         {
-            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+            var activityDetail = this.SupportedActivityTypes.First(x => x.ActivityType == this.SelectedActivity);
 
             this.locationFechingTimer.Stop();
             this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval);
@@ -484,16 +473,28 @@
         /// <param name="e">The event argument.</param>
         private async void LocationFechingTimer_Tick(object sender, object e)
         {
-            Debug.WriteLine($"{DateTime.Now} - Fetching location from timer.");
-            var sw = new Stopwatch();
-            sw.Start();
+            try
+            {
+                this.locationFechingTimer.Stop();
 
-            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+                Debug.WriteLine($"{DateTime.Now} - Fetching location from timer.");
+                var sw = new Stopwatch();
+                sw.Start();
 
-            var currentLocation = await this.locationTracker.GetCurrentLocation(activityDetail.DesiredAccuracy);
+                var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
 
-            sw.Stop();
-            await this.gpxHandler.RecordLocationAsync(this.trackingId, currentLocation, $"source T({sw.ElapsedMilliseconds} ms)");
+                // This step seems to be very slow, maybe it tends to consume more battery.
+                var currentLocation = await this.locationTracker.GetCurrentLocation(activityDetail.DesiredAccuracy);
+
+                sw.Stop();
+
+                await this.DisplayMostRecentLocationData(currentLocation);
+                await this.gpxHandler.RecordLocationAsync(this.trackingId, currentLocation, $"source T({sw.ElapsedMilliseconds} ms)");
+            }
+            finally
+            {
+                this.locationFechingTimer.Start();
+            }
         }
 
         /// <summary>
@@ -587,6 +588,28 @@
                     this.CoordinateInformation = message;
                 }
             });
+        }
+
+        /// <summary>
+        /// Gets most recent location data from background task and display on screen.
+        /// </summary>
+        /// <param name="currentLocation">The location with current coordinate.</param>
+        /// <returns>The asynchronous task object.</returns>
+        private async Task DisplayMostRecentLocationData(Geocoordinate currentLocation)
+        {
+            string message = string.Empty;
+
+            if (currentLocation != null)
+            {
+                Debug.WriteLine($"{DateTime.Now} - GPS position or status has changed in tracking view model.");
+                message = currentLocation.Point.Position.Latitude.ToString() + ", " + currentLocation.Point.Position.Longitude.ToString();
+            }
+            else
+            {
+                message = "Getting your location now, please be patient.";
+            }
+
+            await this.DisplayMostRecentLocationData(message);
         }
     }
 }

@@ -88,6 +88,11 @@
                 return;
             }
 
+            if (coordinate == null)
+            {
+                return;
+            }
+
             var waypointSection = string.Format(
                 WaypointXmlTemplate,
                 coordinate.Point.Position.Latitude,
