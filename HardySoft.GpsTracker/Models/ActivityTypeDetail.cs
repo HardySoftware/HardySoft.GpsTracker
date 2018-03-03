@@ -67,8 +67,8 @@
             switch (type)
             {
                 case ActivityTypes.Hiking:
-                    interval = 120;
-                    accuracy = 10;
+                    interval = 60;
+                    accuracy = 20;
                     break;
                 case ActivityTypes.Cycling:
                     interval = 30;
@@ -76,7 +76,7 @@
                     break;
                 default:
                     interval = 300;
-                    accuracy = 5;
+                    accuracy = 50;
                     break;
             }
         }
