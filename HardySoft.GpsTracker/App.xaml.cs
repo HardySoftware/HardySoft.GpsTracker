@@ -61,7 +61,7 @@
         protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
         {
             this.Container.RegisterType<IGpxHandler, GpxHandler>();
-            this.Container.RegisterType<ILocationTracker, GpsLocationTracker>(new ContainerControlledLifetimeManager());
+            this.Container.RegisterType<ILocationTracker, GpsLocationTracker>(new TransientLifetimeManager());
             this.Container.RegisterType<ISettingOperator, SettingOperator>(new ContainerControlledLifetimeManager());
             this.Container.RegisterInstance<ISessionStateService>(this.SessionStateService);
 

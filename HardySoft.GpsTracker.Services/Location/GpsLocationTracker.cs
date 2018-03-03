@@ -34,24 +34,17 @@
         /// <inheritdoc />
         public async Task StartTracking(uint desireAccuracyInMeters, uint reportIntervalInSeconds)
         {
-            var accessStatus = await Geolocator.RequestAccessAsync();
+            await this.InitializeGeolocator(desireAccuracyInMeters);
 
-            this.statusUpdate.GeolocationAccessStatus = accessStatus;
-
-            switch (accessStatus)
+            if (this.geoLocator != null)
             {
-                case GeolocationAccessStatus.Allowed:
-                    // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
-                    this.geoLocator = new Geolocator { DesiredAccuracyInMeters = desireAccuracyInMeters, ReportInterval = reportIntervalInSeconds * 1000 };
+                // Subscribe to the StatusChanged event to get updates of location status changes.
+                this.geoLocator.StatusChanged += this.OnStatusChanged;
+                this.geoLocator.PositionChanged += this.OnPositionChanged;
 
-                    // Subscribe to the StatusChanged event to get updates of location status changes.
-                    this.geoLocator.StatusChanged += this.OnStatusChanged;
-                    this.geoLocator.PositionChanged += this.OnPositionChanged;
-
-                    // Carry out the operation.
-                    Geoposition firstPosition = await this.geoLocator.GetGeopositionAsync();
-                    this.statusUpdate.Coordinate = firstPosition.Coordinate;
-                    break;
+                // Carry out the operation.
+                Geoposition firstPosition = await this.geoLocator.GetGeopositionAsync();
+                this.statusUpdate.Coordinate = firstPosition.Coordinate;
             }
         }
 
@@ -63,24 +56,48 @@
                 this.geoLocator.StatusChanged -= this.OnStatusChanged;
                 this.geoLocator.PositionChanged -= this.OnPositionChanged;
             }
+
+            this.geoLocator = null;
         }
 
         /// <inheritdoc />
         public async Task<Geocoordinate> GetCurrentLocation(uint desireAccuracyInMeters)
         {
+            await this.InitializeGeolocator(desireAccuracyInMeters);
+
+            if (this.geoLocator != null)
+            {
+                Geoposition currentPosition = await this.geoLocator.GetGeopositionAsync();
+                return currentPosition.Coordinate;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Initialize Geolocator by setting desired accuracy.
+        /// </summary>
+        /// <param name="desireAccuracyInMeters">The desired accuracy in meters from the GPS.</param>
+        /// <returns>The async task.</returns>
+        private async Task InitializeGeolocator(uint desireAccuracyInMeters)
+        {
+            if (this.geoLocator != null)
+            {
+                return;
+            }
+
             var accessStatus = await Geolocator.RequestAccessAsync();
             switch (accessStatus)
             {
                 case GeolocationAccessStatus.Allowed:
                     // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
                     this.geoLocator = new Geolocator { DesiredAccuracyInMeters = desireAccuracyInMeters };
-
-                    // Carry out the operation.
-                    Geoposition currentPosition = await this.geoLocator.GetGeopositionAsync();
-                    return currentPosition.Coordinate;
-                default:
-                    return null;
+                    return;
             }
+
+            this.geoLocator = null;
         }
 
         /// <summary>

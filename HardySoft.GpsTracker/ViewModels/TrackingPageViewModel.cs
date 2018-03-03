@@ -473,7 +473,15 @@
             var activityDetail = this.SupportedActivityTypes.First(x => x.ActivityType == this.SelectedActivity);
 
             this.locationFechingTimer.Stop();
-            this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval);
+            if (this.trackingMechanism == TrackingMechanism.LocationFetchingTimer)
+            {
+                this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval);
+            }
+            else if (this.trackingMechanism == TrackingMechanism.Hybrid)
+            {
+                this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval / 2);
+            }
+
             this.locationFechingTimer.Start();
 
             if (startImmediately)

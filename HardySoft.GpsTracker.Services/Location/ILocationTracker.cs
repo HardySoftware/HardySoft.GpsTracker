@@ -17,7 +17,7 @@
         /// <summary>
         /// Starts location tracking.
         /// </summary>
-        /// <param name="desireAccuracyInMeters">The desired accuracy in meter from the GPS.</param>
+        /// <param name="desireAccuracyInMeters">The desired accuracy in meters from the GPS.</param>
         /// <param name="reportIntervalInSeconds">The report internal in seconds when position is changed.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task StartTracking(uint desireAccuracyInMeters, uint reportIntervalInSeconds);
