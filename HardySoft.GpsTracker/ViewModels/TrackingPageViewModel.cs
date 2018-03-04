@@ -494,6 +494,8 @@
             {
                 this.locationFechingTimer.Stop();
 
+                await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Fetching timer ticked at {DateTime.Now.ToUniversalTime().ToString("o")}.");
+
                 var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
 
                 if (this.trackingMechanism == TrackingMechanism.Hybrid)
@@ -501,6 +503,7 @@
                     if (this.mostRecentLocationUpdateTime.AddSeconds(activityDetail.TrackingInterval) > DateTime.Now)
                     {
                         // If the location changed event provides frequent update, we don't need fetching timer to compensate scarce location tracking.
+                        await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Hybrid mode, skip running because it's too close to previous run {this.mostRecentLocationUpdateTime.ToUniversalTime().ToString("o")}.");
                         return;
                     }
                 }

@@ -49,6 +49,11 @@
         private const string WaypointXmlTemplate = "<trkpt lat=\"{0}\" lon=\"{1}\"><ele>{2}</ele><time>{3}</time><desc>position source {4}, accuracy {5}. Additional comment {6}</desc></trkpt>";
 
         /// <summary>
+        /// The Xml comment section template.
+        /// </summary>
+        private const string XmlCommentTemplate = "<!--{0}-->";
+
+        /// <summary>
         /// The working folder name for way-point section files.
         /// </summary>
         private const string WorkingFolderName = "working";
@@ -93,7 +98,7 @@
                 return;
             }
 
-            var waypointSection = string.Format(
+            var waypointSectionContent = string.Format(
                 WaypointXmlTemplate,
                 coordinate.Point.Position.Latitude,
                 coordinate.Point.Position.Longitude,
@@ -109,7 +114,30 @@
             Debug.WriteLine($"{DateTime.Now} - Creating way-point section file {sectionFileName}");
             var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
-            await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(waypointFile, waypointSection));
+            await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(waypointFile, waypointSectionContent));
+        }
+
+        /// <inheritdoc />
+        public async Task RecordCommentAsync(string trackingId, string comment)
+        {
+            if (string.IsNullOrWhiteSpace(trackingId))
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                return;
+            }
+
+            var commentContent = string.Format(XmlCommentTemplate, comment);
+
+            var workingFolder = await GetFolder(WorkingFolderName);
+
+            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}-Comment.xml";
+            var commentFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
+
+            await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(commentFile, commentContent));
         }
 
         /// <inheritdoc />
@@ -131,30 +159,36 @@
             };
 
             var queryResult = workingFolder.CreateFileQueryWithOptions(queryOptions);
-            var waypointFiles = await queryResult.GetFilesAsync();
+            var gpxSectionFiles = await queryResult.GetFilesAsync();
 
             var sb = new StringBuilder();
-            foreach (var file in waypointFiles)
+            int commentFileCounter = 0;
+            foreach (var file in gpxSectionFiles)
             {
+                if (file.Name.Contains("-Comment"))
+                {
+                    commentFileCounter++;
+                }
+
                 var waypointXml = await FileIO.ReadTextAsync(file);
                 sb.Append(waypointXml);
             }
 
-            var gpxXml = string.Format(GpxXmlTemplate, DateTime.Now.ToString("yyyyMMddHHmmss"), activityName, sb);
+            var gpxXml = string.Format(GpxXmlTemplate, DateTime.Now.ToUniversalTime().ToString("o"), activityName, sb);
             var gpxFolder = await GetFolder(GpxFolderName);
             var gpxFile = await gpxFolder.CreateFileAsync(gpxFileName, CreationCollisionOption.ReplaceExisting);
 
             await FileIO.WriteTextAsync(gpxFile, gpxXml);
 
             // Delete working files after GPX file is created
-            foreach (var file in waypointFiles)
+            foreach (var file in gpxSectionFiles)
             {
                 await this.waypointFileRetryPolicy.ExecuteAsync(async () => await file.DeleteAsync());
             }
 
             HockeyClient.Current.TrackEvent("Composed GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
 
-            return waypointFiles.Count;
+            return gpxSectionFiles.Count - commentFileCounter;
         }
 
         /// <summary>

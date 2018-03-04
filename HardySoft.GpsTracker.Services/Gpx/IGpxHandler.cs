@@ -18,6 +18,14 @@
         Task RecordLocationAsync(string trackingId, Geocoordinate coordinate, string comment);
 
         /// <summary>
+        /// Record a Xml comment section.
+        /// </summary>
+        /// <param name="trackingId">The unique identifier of each individual tracking.</param>
+        /// <param name="comment">Additional comment message.</param>
+        /// <returns>The asynchronous task.</returns>
+        Task RecordCommentAsync(string trackingId, string comment);
+
+        /// <summary>
         /// Compose previously saved way-point sections belonging to same tracking Id into a complete GPX file.
         /// </summary>
         /// <param name="trackingId">The unique identifier of each individual tracking.</param>
