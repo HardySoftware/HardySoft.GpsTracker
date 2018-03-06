@@ -21,6 +21,7 @@
     using Windows.ApplicationModel.Core;
     using Windows.ApplicationModel.ExtendedExecution;
     using Windows.Devices.Geolocation;
+    using Windows.System.Threading;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -73,7 +74,7 @@
         /// <summary>
         /// A timer used to control the interval to fetch location information.
         /// </summary>
-        private DispatcherTimer locationFechingTimer;
+        private ThreadPoolTimer locationFechingTimer;
 
         /// <summary>
         /// A unique identifier of each individual tracking.
@@ -122,9 +123,6 @@
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
 
             this.trackingMechanism = TrackingMechanism.Hybrid;
-
-            this.locationFechingTimer = new DispatcherTimer();
-            this.locationFechingTimer.Tick += this.LocationFechingTimer_Tick;
         }
 
         /// <summary>
@@ -370,6 +368,8 @@
             this.OnPropertyChanged(nameof(this.IsActivityOptionEnabled));
 
             await this.DisplayMostRecentLocationData($"Gpx file created with {wayPointNumber} points collected.");
+
+            this.refreshTimer.Stop();
         }
 
         /// <summary>
@@ -410,6 +410,8 @@
                         await this.StartLocationUpdateTracking();
                         this.StartLocationIntervalTracking();
                     }
+
+                    this.refreshTimer.Start();
 
                     break;
                 default:
@@ -464,67 +466,50 @@
         {
             var activityDetail = this.SupportedActivityTypes.First(x => x.ActivityType == this.SelectedActivity);
 
-            this.locationFechingTimer.Stop();
+            var handler = new TimerElapsedHandler(this.LocationFechingTimer_Tick);
+
             if (this.trackingMechanism == TrackingMechanism.LocationFetchingTimer)
             {
-                this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval);
+                this.locationFechingTimer = ThreadPoolTimer.CreatePeriodicTimer(handler, TimeSpan.FromSeconds(activityDetail.TrackingInterval));
             }
             else if (this.trackingMechanism == TrackingMechanism.Hybrid)
             {
-                this.locationFechingTimer.Interval = TimeSpan.FromSeconds(activityDetail.TrackingInterval / 2);
-            }
-
-            this.locationFechingTimer.Start();
-
-            if (this.trackingMechanism == TrackingMechanism.LocationFetchingTimer)
-            {
-                // Start immediately without waiting for the interval.
-                this.LocationFechingTimer_Tick(null, null);
+                this.locationFechingTimer = ThreadPoolTimer.CreatePeriodicTimer(handler, TimeSpan.FromSeconds(activityDetail.TrackingInterval / 2));
             }
         }
 
         /// <summary>
         /// An event handler to handle location fetching timer ticks.
         /// </summary>
-        /// <param name="sender">The sender of event.</param>
-        /// <param name="e">The event argument.</param>
-        private async void LocationFechingTimer_Tick(object sender, object e)
+        /// <param name="source">The source of the event.</param>
+        private async void LocationFechingTimer_Tick(ThreadPoolTimer source)
         {
-            try
+            await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Fetching timer ticked at {DateTime.Now.ToUniversalTime().ToString("o")}.");
+
+            var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
+
+            if (this.trackingMechanism == TrackingMechanism.Hybrid)
             {
-                this.locationFechingTimer.Stop();
-
-                await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Fetching timer ticked at {DateTime.Now.ToUniversalTime().ToString("o")}.");
-
-                var activityDetail = this.SupportedActivityTypes.Where(x => x.ActivityType == this.SelectedActivity).First();
-
-                if (this.trackingMechanism == TrackingMechanism.Hybrid)
+                if (this.mostRecentLocationUpdateTime.AddSeconds(activityDetail.TrackingInterval) > DateTime.Now)
                 {
-                    if (this.mostRecentLocationUpdateTime.AddSeconds(activityDetail.TrackingInterval) > DateTime.Now)
-                    {
-                        // If the location changed event provides frequent update, we don't need fetching timer to compensate scarce location tracking.
-                        await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Hybrid mode, skip running because it's too close to previous run {this.mostRecentLocationUpdateTime.ToUniversalTime().ToString("o")}.");
-                        return;
-                    }
+                    // If the location changed event provides frequent update, we don't need fetching timer to compensate scarce location tracking.
+                    await this.gpxHandler.RecordCommentAsync(this.trackingId, $"Hybrid mode, skip running because it's too close to previous run {this.mostRecentLocationUpdateTime.ToUniversalTime().ToString("o")}.");
+                    return;
                 }
-
-                Debug.WriteLine($"{DateTime.Now} - Fetching location from timer.");
-                var sw = new Stopwatch();
-                sw.Start();
-
-                // This step seems to be very slow, maybe it tends to consume more battery.
-                var currentLocation = await this.locationTracker.GetCurrentLocation(activityDetail.DesiredAccuracy);
-
-                sw.Stop();
-
-                await this.DisplayMostRecentLocationData(currentLocation);
-                await this.gpxHandler.RecordLocationAsync(this.trackingId, currentLocation, $"source T({sw.ElapsedMilliseconds} ms)");
-                this.mostRecentLocationUpdateTime = DateTime.Now;
             }
-            finally
-            {
-                this.locationFechingTimer.Start();
-            }
+
+            Debug.WriteLine($"{DateTime.Now} - Fetching location from timer.");
+            var sw = new Stopwatch();
+            sw.Start();
+
+            // This step seems to be very slow, maybe it tends to consume more battery.
+            var currentLocation = await this.locationTracker.GetCurrentLocation(activityDetail.DesiredAccuracy);
+
+            sw.Stop();
+
+            await this.DisplayMostRecentLocationData(currentLocation);
+            await this.gpxHandler.RecordLocationAsync(this.trackingId, currentLocation, $"source T({sw.ElapsedMilliseconds} ms)");
+            this.mostRecentLocationUpdateTime = DateTime.Now;
         }
 
         /// <summary>
@@ -532,7 +517,10 @@
         /// </summary>
         private void StopLocationIntervalTracking()
         {
-            this.locationFechingTimer.Stop();
+            if (this.locationFechingTimer != null)
+            {
+                this.locationFechingTimer.Cancel();
+            }
         }
 
         /// <summary>
