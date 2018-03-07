@@ -1,5 +1,6 @@
 ﻿namespace HardySoft.GpsTracker.Services.Gpx
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Windows.Devices.Geolocation;
 
@@ -32,5 +33,11 @@
         /// <param name="activityName">The name of activity.</param>
         /// <returns>The number of way points found for the final GPX file.</returns>
         Task<int> ComposeGpxFile(string trackingId, string activityName);
+
+        /// <summary>
+        /// Clears all temporary GPX way-point files.
+        /// </summary>
+        /// <returns>A pair structure, the key is the total number of files deleted and value is the total size of files deleted.</returns>
+        Task<KeyValuePair<int, ulong>> ClearTemporaryGpxWaypointFiles();
     }
 }

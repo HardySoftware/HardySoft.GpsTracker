@@ -83,8 +83,5 @@
                    RelativePanel.AlignBottomWithPanel="True"
                    Style="{StaticResource ButtonDescription}"
                    Text="{Binding Path=CoordinateInformation, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock x:Name="TrackingTime"
-                   RelativePanel.AlignRightWithPanel="True"
-                   RelativePanel.AlignBottomWithPanel="True"/>
     </RelativePanel>
 </prism:SessionStateAwarePage>

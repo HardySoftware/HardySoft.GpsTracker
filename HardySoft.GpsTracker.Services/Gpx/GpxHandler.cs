@@ -159,11 +159,11 @@
             };
 
             var queryResult = workingFolder.CreateFileQueryWithOptions(queryOptions);
-            var gpxSectionFiles = await queryResult.GetFilesAsync();
+            var gpxWaypointFiles = await queryResult.GetFilesAsync();
 
             var sb = new StringBuilder();
             int commentFileCounter = 0;
-            foreach (var file in gpxSectionFiles)
+            foreach (var file in gpxWaypointFiles)
             {
                 if (file.Name.Contains("-Comment"))
                 {
@@ -181,14 +181,37 @@
             await FileIO.WriteTextAsync(gpxFile, gpxXml);
 
             // Delete working files after GPX file is created
-            foreach (var file in gpxSectionFiles)
+            foreach (var file in gpxWaypointFiles)
             {
                 await this.waypointFileRetryPolicy.ExecuteAsync(async () => await file.DeleteAsync());
             }
 
             HockeyClient.Current.TrackEvent("Composed GPX file", new Dictionary<string, string> { { "File Name", gpxFileName } }, null);
 
-            return gpxSectionFiles.Count - commentFileCounter;
+            return gpxWaypointFiles.Count - commentFileCounter;
+        }
+
+        /// <inheritdoc />
+        public async Task<KeyValuePair<int, ulong>> ClearTemporaryGpxWaypointFiles()
+        {
+            var workingFolder = await GetFolder(WorkingFolderName);
+            var queryOptions = new QueryOptions(CommonFileQuery.OrderByName, new List<string> { $".xml" });
+            var queryResult = workingFolder.CreateFileQueryWithOptions(queryOptions);
+            var gpxWaypointFiles = await queryResult.GetFilesAsync();
+
+            int fileCounter = 0;
+            ulong totalFileSize = 0;
+
+            foreach (var file in gpxWaypointFiles)
+            {
+                var size = await GetFileSizeAsync(file);
+                await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                fileCounter++;
+                totalFileSize += size;
+            }
+
+            return new KeyValuePair<int, ulong>(fileCounter, totalFileSize);
         }
 
         /// <summary>
@@ -209,6 +232,17 @@
             var folder = await storageFolder.GetFolderAsync(folderName);
 
             return folder;
+        }
+
+        /// <summary>
+        /// Gets the size of storage file.
+        /// </summary>
+        /// <param name="file">The storage file.</param>
+        /// <returns>The storage file size in bytes.</returns>
+        private static async Task<ulong> GetFileSizeAsync(StorageFile file)
+        {
+            var properties = await file.GetBasicPropertiesAsync();
+            return properties.Size;
         }
     }
 }
