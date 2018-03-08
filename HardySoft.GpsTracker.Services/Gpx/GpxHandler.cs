@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.HockeyApp;
@@ -110,7 +111,9 @@
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
-            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
+            var randomFileName = GetRandomString(6);
+
+            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}-{randomFileName}.xml";
             Debug.WriteLine($"{DateTime.Now} - Creating way-point section file {sectionFileName}");
             var waypointFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
@@ -130,11 +133,13 @@
                 return;
             }
 
+            var randomFileName = GetRandomString(6);
+
             var commentContent = string.Format(XmlCommentTemplate, comment);
 
             var workingFolder = await GetFolder(WorkingFolderName);
 
-            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}-Comment.xml";
+            var sectionFileName = $"{trackingId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}-Comment-{randomFileName}.xml";
             var commentFile = await workingFolder.CreateFileAsync(sectionFileName, CreationCollisionOption.ReplaceExisting);
 
             await this.waypointFileRetryPolicy.ExecuteAsync(async () => await FileIO.WriteTextAsync(commentFile, commentContent));
@@ -243,6 +248,21 @@
         {
             var properties = await file.GetBasicPropertiesAsync();
             return properties.Size;
+        }
+
+        /// <summary>
+        /// Generates a random string.
+        /// </summary>
+        /// <param name="length">The length of random string.</param>
+        /// <returns>The generated random string.</returns>
+        private static string GetRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            var random = new Random();
+
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
