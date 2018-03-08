@@ -122,7 +122,7 @@
             Debug.WriteLine($"{DateTime.Now} - Attached LocationTracker_OnTrackingProgressChangedEvent event handler.");
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
 
-            this.trackingMechanism = TrackingMechanism.Hybrid;
+            this.trackingMechanism = TrackingMechanism.LocationFetchingTimer;
         }
 
         /// <summary>
@@ -304,6 +304,7 @@
 
             if (locationAccessStatus == GeolocationAccessStatus.Allowed)
             {
+                // Set the accuracy expectation in setting, so that background task can access the information.
                 if (this.SelectedActivity == ActivityTypes.Unknown)
                 {
                     this.settingOperator.SetGpsAccuracyExpectation(null);
@@ -530,6 +531,8 @@
         /// <param name="args">The event argument.</param>
         private async void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
         {
+            await this.gpxHandler.RecordCommentAsync(this.trackingId, "Extended session revoked");
+
             switch (args.Reason)
             {
                 case ExtendedExecutionRevokedReason.Resumed:
