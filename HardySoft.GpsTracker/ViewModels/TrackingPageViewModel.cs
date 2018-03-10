@@ -59,7 +59,7 @@
         /// <summary>
         /// The selected activity;
         /// </summary>
-        private ActivityTypes selectedActivity;
+        private ActivityType selectedActivity;
 
         /// <summary>
         /// The text information of the coordinate from location tracking service.
@@ -112,7 +112,7 @@
             this.status = TrackingStatus.Stopped;
             this.StartPauseClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStartPauseClicked, this.CanStartPauseClick);
             this.StopClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnStopClicked, this.CanStopClick);
-            this.SelectedActivity = ActivityTypes.Unknown;
+            this.SelectedActivity = ActivityType.Unknown;
             this.CoordinateInformation = "Your location information";
 
             this.settingOperator.ResetSettings();
@@ -133,12 +133,12 @@
         /// <summary>
         /// Gets a list of activity types and their display texts.
         /// </summary>
-        public ObservableCollection<ActivityTypeDetail> SupportedActivityTypes => new ObservableCollection<ActivityTypeDetail>(ActivityTypeDetail.GetAllActivityTypes());
+        public ObservableCollection<ActivityTypeDisplay> SupportedActivityTypes => new ObservableCollection<ActivityTypeDisplay>(ActivityTypeDisplay.GetAllActivityTypes());
 
         /// <summary>
         /// Gets or sets the selected activity.
         /// </summary>
-        public ActivityTypes SelectedActivity
+        public ActivityType SelectedActivity
         {
             get
             {
@@ -204,7 +204,7 @@
         {
             get
             {
-                if (this.SelectedActivity != ActivityTypes.Unknown)
+                if (this.SelectedActivity != ActivityType.Unknown)
                 {
                     if (this.status == TrackingStatus.Stopped)
                     {
@@ -233,7 +233,7 @@
         {
             get
             {
-                if (this.SelectedActivity != ActivityTypes.Unknown)
+                if (this.SelectedActivity != ActivityType.Unknown)
                 {
                     if (this.status == TrackingStatus.Started)
                     {
@@ -310,7 +310,7 @@
             if (locationAccessStatus == GeolocationAccessStatus.Allowed)
             {
                 // Set the accuracy expectation in setting, so that background task can access the information.
-                if (this.SelectedActivity == ActivityTypes.Unknown)
+                if (this.SelectedActivity == ActivityType.Unknown)
                 {
                     this.settingOperator.SetGpsAccuracyExpectation(null);
                 }
@@ -403,7 +403,7 @@
             switch (extendedSessionResult)
             {
                 case ExtendedExecutionResult.Allowed:
-                    if (this.trackingMechanism == TrackingMechanism.LocationServiceProgrssChangedEvent)
+                    if (this.trackingMechanism == TrackingMechanism.LocationServiceProgressChangedEvent)
                     {
                         await this.StartLocationUpdateTracking();
                     }

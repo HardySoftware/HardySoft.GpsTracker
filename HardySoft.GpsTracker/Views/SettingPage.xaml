@@ -7,6 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="using:Prism.Windows.Mvvm"
+    xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -24,8 +26,24 @@
                    Margin="0,0,0,20"
                    RelativePanel.AlignTopWithPanel="True"
                    Style="{StaticResource WindowTitle}">Settings and Options</TextBlock>
+
         <TextBlock x:Name="ClearTempLabel" Style="{StaticResource CaptionTitle}" RelativePanel.Below="PageTitle" Text="Clear temporary files"></TextBlock>
         <Button RelativePanel.RightOf="ClearTempLabel" RelativePanel.AlignVerticalCenterWith="ClearTempLabel" Command="{Binding Path=ClearTempFileButtonClickedCommand}">OK</Button>
+
+        <TextBlock x:Name="TrackingMechanismLabel" Style="{StaticResource CaptionTitle}" RelativePanel.Below="ClearTempLabel" Text="Choose tracking mechanism"></TextBlock>
+        <ComboBox x:Name="TrackingMechanism"
+                  Margin="10,0,0,0"
+                  HorizontalAlignment="Stretch"
+                  RelativePanel.RightOf="TrackingMechanismLabel"
+                  RelativePanel.AlignRightWithPanel="True"
+                  RelativePanel.AlignVerticalCenterWith="TrackingMechanismLabel"
+                  ItemsSource="{Binding Path=SupportedTrackingMechanisms}"
+                  DisplayMemberPath="DisplayValue"
+                  SelectedValuePath="TrackingMechanism"
+                  SelectedValue="{Binding Path=SelectedTrackingMechanism, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                  SelectedIndex="{Binding Path=SelectedTrackingMechanism, Converter={StaticResource cnvTrackingMechanismType}, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}">
+        </ComboBox>
+
         <TextBlock x:Name="InformationTextBlock"
                    RelativePanel.AlignLeftWithPanel="True"
                    RelativePanel.AlignBottomWithPanel="True"

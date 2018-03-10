@@ -7,7 +7,7 @@
     /// An enumeration for all possible activity types supported by the app.
     /// </summary>
     [Serializable]
-    public enum ActivityTypes
+    public enum ActivityType
     {
         /// <summary>
         /// Unknown activity type.

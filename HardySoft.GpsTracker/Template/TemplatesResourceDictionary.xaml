@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary
     x:Class="HardySoft.GpsTracker.Template.TemplatesResourceDictionary"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converter="using:HardySoft.GpsTracker.Support.Converters"
     xmlns:local="using:HardySoft.GpsTracker.Template"
@@ -16,7 +16,8 @@
         </Grid>
     </DataTemplate>-->
 
-    <converter:SelectedActivityTypeToIndexConverter x:Key="cnvActivityType"></converter:SelectedActivityTypeToIndexConverter>
+    <converter:SelectedActivityTypeToIndexConverter x:Key="cnvActivityType" />
+    <converter:SelectedTrackingMechanismToIndexConverter x:Key="cnvTrackingMechanismType" />
 
     <Style x:Key="WindowTitle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{ThemeResource SystemColorButtonTextColor}"></Setter>

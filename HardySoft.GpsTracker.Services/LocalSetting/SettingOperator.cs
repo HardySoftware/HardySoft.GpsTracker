@@ -1,5 +1,6 @@
 ﻿namespace HardySoft.GpsTracker.Services.LocalSetting
 {
+    using System;
     using Windows.Storage;
 
     /// <summary>
@@ -84,6 +85,25 @@
         public void SetTrackingId(string trackingId)
         {
             ApplicationData.Current.LocalSettings.Values["TrackingId"] = trackingId;
+        }
+
+        /// <inheritdoc />
+        public int? GetTrackingMechanismId()
+        {
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("TrackingMechanismId"))
+            {
+                return Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["TrackingMechanismId"]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <inheritdoc />
+        public void SetTrackingMechanism(int trackingMechanismId)
+        {
+            ApplicationData.Current.LocalSettings.Values["TrackingMechanismId"] = trackingMechanismId;
         }
     }
 }

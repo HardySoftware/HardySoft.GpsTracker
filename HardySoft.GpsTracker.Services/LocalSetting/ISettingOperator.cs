@@ -63,5 +63,17 @@
         /// </summary>
         /// <param name="trackingId">The tracking Id to set.</param>
         void SetTrackingId(string trackingId);
+
+        /// <summary>
+        /// Gets the tracking mechanism Id.
+        /// </summary>
+        /// <returns>The tracking mechanism Id.</returns>
+        int? GetTrackingMechanismId();
+
+        /// <summary>
+        /// Sets the tracking mechanism Id.
+        /// </summary>
+        /// <param name="trackingMechanismId">The tracking mechanism Id.</param>
+        void SetTrackingMechanism(int trackingMechanismId);
     }
 }

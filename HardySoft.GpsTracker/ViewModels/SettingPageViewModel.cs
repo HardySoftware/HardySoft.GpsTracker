@@ -2,9 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using HardySoft.GpsTracker.Models;
     using HardySoft.GpsTracker.Services.Gpx;
+    using HardySoft.GpsTracker.Services.LocalSetting;
     using Prism.Commands;
     using Prism.Windows.AppModel;
     using Prism.Windows.Mvvm;
@@ -29,10 +32,18 @@
         private readonly IGpxHandler gpxHandler;
 
         /// <summary>
+        /// A setting operator implementation.
+        /// </summary>
+        private readonly ISettingOperator settingOperator;
+
+        /// <summary>
         /// The information text for this view.
         /// </summary>
         private string informationText;
 
+        /// <summary>
+        /// The indicator to determine if the temp file delete button is enabled or not.
+        /// </summary>
         private bool isTempFileDeleteButtonEnabled;
 
         /// <summary>
@@ -40,9 +51,11 @@
         /// </summary>
         /// <param name="sessionService">The session state service it depends on.</param>
         /// <param name="gpxHandler">The Gpx handler implementation it depends on.</param>
-        public SettingPageViewModel(ISessionStateService sessionService, IGpxHandler gpxHandler)
+        /// <param name="settingOperator">The setting operator implementation it depends on.</param>
+        public SettingPageViewModel(ISessionStateService sessionService, IGpxHandler gpxHandler, ISettingOperator settingOperator)
         {
             this.gpxHandler = gpxHandler ?? throw new ArgumentNullException(nameof(gpxHandler));
+            this.settingOperator = settingOperator ?? throw new ArgumentNullException(nameof(settingOperator));
             this.sessionService = sessionService;
 
             this.ClearTempFileButtonClickedCommand = new DelegateCommand<ItemClickEventArgs>(this.OnClearTempFileButtonClicked, this.CanClearTempFileButtonClick);
@@ -62,6 +75,27 @@
             set
             {
                 this.SetProperty(ref this.informationText, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of activity types and their display texts.
+        /// </summary>
+        public ObservableCollection<TrackingMechanismDisplay> SupportedTrackingMechanisms => new ObservableCollection<TrackingMechanismDisplay>(TrackingMechanismDisplay.GetAllTrackingMechanisms());
+
+        /// <summary>
+        /// Gets or sets the selected tracking mechanism.
+        /// </summary>
+        public TrackingMechanism SelectedTrackingMechanism
+        {
+            get
+            {
+                return this.GetSavedTrackingMechanism();
+            }
+
+            set
+            {
+                this.settingOperator.SetTrackingMechanism((int)value);
             }
         }
 
@@ -123,6 +157,20 @@
                     this.InformationText = message;
                 }
             });
+        }
+
+        private TrackingMechanism GetSavedTrackingMechanism()
+        {
+            var trackingMechanismId = this.settingOperator.GetTrackingMechanismId();
+
+            if (trackingMechanismId == null)
+            {
+                return TrackingMechanism.LocationServiceProgressChangedEvent;
+            }
+            else
+            {
+                return (TrackingMechanism)trackingMechanismId.Value;
+            }
         }
     }
 }
