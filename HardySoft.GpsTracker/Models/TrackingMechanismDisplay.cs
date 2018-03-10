@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HardySoft.GpsTracker.Services.LocalSetting;
     using HardySoft.GpsTracker.Support.Extensions;
 
     /// <summary>
@@ -40,6 +41,25 @@
             }
 
             return activityTypeDisplays;
+        }
+
+        /// <summary>
+        /// Gets the saved tracking mechanism, if not found use the <see cref="TrackingMechanism.LocationServiceProgressChangedEvent"/> as default value.
+        /// </summary>
+        /// <param name="settingOperator">A setting operator implementation.</param>
+        /// <returns>The saved tracking mechanism.</returns>
+        public static TrackingMechanism GetSavedTrackingMechanism(ISettingOperator settingOperator)
+        {
+            var trackingMechanismId = settingOperator.GetTrackingMechanismId();
+
+            if (trackingMechanismId == null)
+            {
+                return TrackingMechanism.LocationServiceProgressChangedEvent;
+            }
+            else
+            {
+                return (TrackingMechanism)trackingMechanismId.Value;
+            }
         }
     }
 }

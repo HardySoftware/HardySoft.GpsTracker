@@ -127,7 +127,7 @@
             Debug.WriteLine($"{DateTime.Now} - Attached LocationTracker_OnTrackingProgressChangedEvent event handler.");
             this.locationTracker.OnTrackingProgressChangedEvent += this.LocationTracker_OnTrackingProgressChangedEvent;
 
-            this.trackingMechanism = TrackingMechanism.LocationFetchingTimer;
+            this.trackingMechanism = TrackingMechanismDisplay.GetSavedTrackingMechanism(this.settingOperator);
         }
 
         /// <summary>

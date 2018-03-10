@@ -90,7 +90,7 @@
         {
             get
             {
-                return this.GetSavedTrackingMechanism();
+                return TrackingMechanismDisplay.GetSavedTrackingMechanism(this.settingOperator);
             }
 
             set
@@ -157,20 +157,6 @@
                     this.InformationText = message;
                 }
             });
-        }
-
-        private TrackingMechanism GetSavedTrackingMechanism()
-        {
-            var trackingMechanismId = this.settingOperator.GetTrackingMechanismId();
-
-            if (trackingMechanismId == null)
-            {
-                return TrackingMechanism.LocationServiceProgressChangedEvent;
-            }
-            else
-            {
-                return (TrackingMechanism)trackingMechanismId.Value;
-            }
         }
     }
 }
